@@ -1,0 +1,36 @@
+{
+  "public/assets/images/dashboard/1.gif": {
+    "file": "assets/1-Bfyj1kBK.gif",
+    "src": "public/assets/images/dashboard/1.gif"
+  },
+  "public/assets/images/dashboard/bg-balance.png": {
+    "file": "assets/bg-balance-STyCeT3I.png",
+    "src": "public/assets/images/dashboard/bg-balance.png"
+  },
+  "public/assets/images/dashboard/widget-bg.png": {
+    "file": "assets/widget-bg-DNshFGSM.png",
+    "src": "public/assets/images/dashboard/widget-bg.png"
+  },
+  "public/assets/images/login/login_bg.jpg": {
+    "file": "assets/login_bg-tQVGET2T.jpg",
+    "src": "public/assets/images/login/login_bg.jpg"
+  },
+  "public/assets/scss/style.scss": {
+    "file": "assets/style-Dl3Y_iF6.css",
+    "src": "public/assets/scss/style.scss",
+    "isEntry": true
+  },
+  "public/assets/svg/eye-off.svg": {
+    "file": "assets/eye-off-DeswLIf7.svg",
+    "src": "public/assets/svg/eye-off.svg"
+  },
+  "public/assets/svg/eye.svg": {
+    "file": "assets/eye-DzSLXB6s.svg",
+    "src": "public/assets/svg/eye.svg"
+  },
+  "resources/sass/app.scss": {
+    "file": "assets/app-nINq1BSq.css",
+    "src": "resources/sass/app.scss",
+    "isEntry": true
+  }
+}

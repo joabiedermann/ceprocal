@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    @include('landings.layouts.head')
+</head>
+
+<body class="landing-page">
+    <!-- tap on top starts-->
+    <div class="tap-top">
+        <i data-feather="chevrons-up"></i>
+    </div>
+    <!-- tap on tap ends-->
+    <!-- page-wrapper Start-->
+    <div class="landing-page">
+        <span class="cursor">
+            <span class="cursor-move-inner">
+                <span class="cursor-inner"></span>
+            </span>
+            <span class="cursor-move-outer">
+                <span class="cursor-outer"></span>
+            </span>
+        </span>
+        <!-- Page Body Start -->
+        <div class="landing-home" id="home">
+            <div class="container-fluid ">
+                <div class="sticky-header">
+                    @include('landings.layouts.header')
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-lg-8 col-sm-10">
+                        <div class="best-selling">
+                            <img class="img-fluid" src="{{ asset('landing/images/1.png')}}" alt="1.png">
+                        </div>
+                        <div class="nft-marketplace">
+                            <img class="img-fluid" src="{{ asset('landing/images/2.png') }}" alt="2.png">
+                        </div>
+                        <div class="content text-center">
+                            <div>
+                                <div class="arrow-animate">
+                                    <svg>
+                                        <use href="{{ asset('assets/svg/icon-sprite.svg#animated-arrow') }}"></use>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="star-animate hide-mobile">
+                            <img class="img-fluid" src="{{ asset('landing/images/vector.png') }}" alt="vector">
+                        </div>
+                        <div class="screen-2">
+                            <img class="img-fluid sidebar-cuts-image" src="#" alt="">
+                            <div class="screen-sidebar"></div>
+                        </div>
+                        <div class="total-revenue-img">
+                            <img class="img-fluid" src="#" alt="">
+                            <div class="total-revenue-shadow"> </div>
+                        </div>
+                        <div class="star-img">
+                            <img class="img-fluid start-animate fa-spin"
+                                src="{{ asset('landing/images/star.png') }}" alt="star"></div>
+                        <div class="new-user-img">
+                            <img class="img-fluid" src="#" alt="">
+                            <div class="new-user-shadow"> </div>
+                        </div>
+                        <div class="star-img-left">
+                            <img class="img-fluid start-animate-rotate fa-spin" src="{{ asset('landing/images/star.png') }}" alt="star">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @yield('content')
+    </div>
+    @include('landings.layouts.script')
+</body>
+
+</html>
