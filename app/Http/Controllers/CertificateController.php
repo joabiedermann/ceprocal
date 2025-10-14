@@ -414,7 +414,11 @@ class CertificateController extends Controller
 
     public function generate_pdf()
     {
-        return Pdf::view('certificates.pdf_test')
+        $course = Course::find(17);
+        $student = Student::find(8);
+        $student->hash_certificate = Hash::make($student->id . Str::random(20));
+
+        return Pdf::view('certificates.pdf', ['course' => $course, 'student' => $student])
                     ->format('a4')
                     ->landscape();
     }

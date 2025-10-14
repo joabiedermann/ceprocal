@@ -73,9 +73,10 @@
             .asociates-logos {
                 position: relative;
                 margin-top: -3.7%;
-                width: 51%;
-                height: 35px;
+                width: 75%;
+                height: 100px;
                 margin-left: 18%;
+                border-right: 1px solid black;
             }
             .asociate-image {
                 width: 135px;
@@ -85,16 +86,11 @@
             .blank {
                 width: 25%;
             }
-            .signature {
-                height: 90px;
-            }
             .line_signature {
-                width: 35%;
                 border-bottom: 1px solid black;
             }
             .name_signature {
                 font-family: 'Maven Pro', sans-serif;
-                font-size: 20px;
                 padding-top: 1.5%;
             }
             .position_signature {
@@ -171,9 +167,15 @@
             <table class="signatures"
                 @php
                     if ($course->companies->count() > 0) {
-                        $margin_top = 1;
+                        $margin_top = 2;
+                        $height = '65px';
+                        $font_size = '15px';
+                        $width = '25%';
                     } else {
                         $margin_top = 9;
+                        $height = '90px';
+                        $font_size = '20px';
+                        $width = '35%';
                     }
                 @endphp
                 style="
@@ -185,14 +187,14 @@
                 ">
                 <tbody>
                     <tr>
-                        <td class="line_signature"><img class="signature" src="{{ asset('storage/certificates/templates/signature_1.png') }}" alt="signature_1"></td>
+                        <td class="line_signature" style="width: {{ $width }}"><img style="height: {{ $height }}" src="{{ asset('storage/certificates/templates/signature_1.png') }}" alt="signature_1"></td>
                         <td class="blank"></td>
-                        <td class="line_signature"><img class="signature" src="{{ asset('storage/certificates/templates/signature_2.png') }}" alt="signature_2"></td>
+                        <td class="line_signature" style="width: {{ $width }}"><img style="height: {{ $height }}" src="{{ asset('storage/certificates/templates/signature_2.png') }}" alt="signature_2"></td>
                     </tr>
                     <tr>
-                        <td class="name_signature">ING. ENRIQUE DUARTE</td>
+                        <td style="font-size: {{ $font_size }};">ING. ENRIQUE DUARTE</td>
                         <td class="blank"></td>
-                        <td class="name_signature">SR. OSVALDO ACHÓN</td>
+                        <td style="font-size: {{ $font_size }};">SR. OSVALDO ACHÓN</td>
                     </tr>
                     <tr>
                         <td class="position_signature">Presidente</td>
