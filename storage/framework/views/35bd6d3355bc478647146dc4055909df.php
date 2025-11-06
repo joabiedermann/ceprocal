@@ -36,7 +36,7 @@
     </div>
 <!-- /showModal -->
 
-
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('users.create')): ?>
     <!-- createModal -->
         <div class="modal fade flip" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModal" aria-modal="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
@@ -82,9 +82,9 @@
             </div>
         </div>
     <!-- /createModal -->
+<?php endif; ?>
 
-
-
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('users.edit')): ?>
     <!-- editModal -->
         <div class="modal fade flip" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModal" aria-modal="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
@@ -138,4 +138,4 @@
             </div>
         </div>
     <!-- /editModal -->
-<?php /**PATH C:\xampp\htdocs\ceprocal\resources\views/users/modals/index-modals.blade.php ENDPATH**/ ?>
+<?php endif; ?><?php /**PATH C:\xampp\htdocs\ceprocal\resources\views/users/modals/index-modals.blade.php ENDPATH**/ ?>

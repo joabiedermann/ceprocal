@@ -9,6 +9,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "barryvdh/laravel-dompdf": "^3.1",
         "cviebrock/eloquent-sluggable": "^12.0",
         "dcblogdev/laravel-microsoft-graph": "^4.0",
         "kreait/firebase-php": "^7.17",
@@ -18,9 +19,7 @@
         "laravel/ui": "^4.6",
         "prettus/l5-repository": "^2.10",
         "simplesoftwareio/simple-qrcode": "^4.2",
-        "spatie/browsershot": "^5.0",
         "spatie/laravel-medialibrary": "^11.12",
-        "spatie/laravel-pdf": "^1.7",
         "spatie/laravel-permission": "^6.16",
         "spatie/simple-excel": "^3.7",
         "webpatser/laravel-countries": "dev-master",

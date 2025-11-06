@@ -29,7 +29,7 @@ class StudentController extends Controller
      */
     public function index()
     {
-        // $this->authorize('students.show');
+        $this->authorize('students.show');
 
         try {
             DB::beginTransaction();
@@ -46,7 +46,7 @@ class StudentController extends Controller
     
     public function show($id)
     {
-        // $this->authorize('students.show');
+        $this->authorize('students.show');
 
         try {
             DB::beginTransaction();
@@ -69,10 +69,75 @@ class StudentController extends Controller
             return back()->with('error', 'No se puede obtener el registro. Contacte con el administrador.');
         }
     }
+
+    public function edit($id)
+    {
+        $this->authorize('students.edit');
+
+        try {
+            DB::beginTransaction();
+
+            $student = Student::findOrFail($id);
+            switch ($student->status) {
+                case 0:
+                    $student->status_text = 'Inactivo';
+                    break;
+                default:
+                    $student->status_text = 'Activo';
+                    break;
+            }
+
+            return response()->json([
+                'student' => $student,
+            ]);
+        } catch (\Exception $e) {
+            Log::info($e->getMessage());
+            return back()->with('error', 'No se puede obtener el registro. Contacte con el administrador.');
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        $this->authorize('students.edit');
+
+        $this->validate($request, [
+            'nombre' => ['required', 'string', 'max:255'],
+            'numero_documento' => ['required', 'string', 'max:255', Rule::unique('students', 'document_number')->ignore($id)],
+            'telefono' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
+            'estado' => ['required', 'numeric', Rule::in([0, 1])],
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $student = Student::findOrFail($id);
+            $student->name = $request->nombre;
+            $student->document_number = $request->numero_documento;
+            $student->phone_number = $request->telefono;
+            $student->email = Str::lower($request->email);
+            $student->status = $request->estado;
+            $student->save();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'El estudiante ' . $student->name . ' ha sido actualizado correctamente.',
+                'type' => 'success',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::info($e->getMessage());
+            return response()->json([
+                'message' => 'No se puede actualizar el registro. Contacte con el administrador',
+                'type' => 'error',
+            ]);
+        }
+    }
     
     public function get_status($id)
     {
-        // $this->authorize('students.edit_status');
+        $this->authorize('students.edit_status');
 
         try {
             DB::beginTransaction();
@@ -94,7 +159,7 @@ class StudentController extends Controller
 
     public function update_status($id)
     {
-        // $this->authorize('students.edit_status');
+        $this->authorize('students.edit_status');
 
         try {
             DB::beginTransaction();
@@ -130,7 +195,7 @@ class StudentController extends Controller
 
     public function get_email($id)
     {
-        // $this->authorize('students.edit');
+        $this->authorize('students.edit');
 
         try {
             DB::beginTransaction();
@@ -151,7 +216,7 @@ class StudentController extends Controller
 
     public function update_email(Request $request, $id)
     {
-        // $this->authorize('students.edit');
+        $this->authorize('students.edit');
 
         $this->validate($request, [
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($id)],
@@ -182,7 +247,7 @@ class StudentController extends Controller
 
     public function get_destroy($id)
     {
-        // $this->authorize('students.destroy');
+        $this->authorize('students.destroy');
 
         try {
             DB::beginTransaction();
@@ -204,7 +269,7 @@ class StudentController extends Controller
 
     public function destroy($id)
     {
-        // $this->authorize('students.destroy');
+        $this->authorize('students.destroy');
 
         try {
             DB::beginTransaction();

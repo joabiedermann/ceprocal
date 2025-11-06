@@ -35,7 +35,7 @@
                                 <div class="form-group">
                                     <label class="col-form-label">Correo Electrónico</label>
                                     <input id="email" type="email" class="form-control" name="email"
-                                        value="{{ old('email', 'joaquin@bsoft.com.py') }}" placeholder="Ingrese su correo electrónico"> 
+                                        value="{{ old('email') }}" placeholder="Ingrese su correo electrónico"> 
                                     @error('email')  
                                         <span class="text-danger d-block" role="alert">
                                             <strong>{{ $message }}</strong>
@@ -47,7 +47,7 @@
                                     <label class="col-form-label">Contraseña </label>
                                     <div class="form-input position-relative">
                                         <input id="password" type="password" class="form-control" name="password"
-                                            value="{{ old('password', 'Joapy_2024') }}" placeholder="Ingrese su contraseña">
+                                            value="{{ old('password') }}" placeholder="Ingrese su contraseña">
                                         <div class="show-hide"> <span class="show"></span></div>
                                         @error('password')
                                             <span class="text-danger d-block" role="alert">
@@ -66,7 +66,6 @@
                                     </div>
                                 </div>
                             </form> 
-                            <a href="{{ route('landing') }}">Landing</a>
                         </div>
                     </div>
                 </div>

@@ -1,3 +1,4 @@
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('certificates.upload')): ?>
     
     <?php $__env->startSection('css'); ?>
         <link rel="stylesheet" type="text/css" href="<?php echo e(asset('assets/css/vendors/animate.css')); ?>">
@@ -413,5 +414,5 @@ unset($__errorArgs, $__bag); ?> descripcion descripcion-<?php echo e($key); ?>" 
         <script src="<?php echo e(asset('assets/js/sweetalert/sweetalert.min.js')); ?>"></script>
         <script src="<?php echo e(asset('assets/js/cleave/cleave.min.js')); ?>"></script>
     <?php $__env->stopSection(); ?>
-
+<?php endif; ?>
 <?php echo $__env->make('layouts.simple.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\ceprocal\resources\views/certificates/temporal_import.blade.php ENDPATH**/ ?>

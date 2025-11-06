@@ -1,4 +1,4 @@
-
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('courses.edit')): ?>
     <!-- createCompanyModal -->
         <div class="modal fade flip" id="createCompanyModal" tabindex="-1" role="dialog" aria-labelledby="createCompanyModal" aria-modal="true">
             <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -51,9 +51,9 @@ unset($__errorArgs, $__bag); ?> logo" id="logo" name="logo" aria-describedby="lo
             </div>
         </div>
     <!-- /createCompanyModal -->
+<?php endif; ?>
 
-
-
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('courses.edit')): ?>
     <!-- editCompanyModal -->
         <div class="modal fade flip" id="editCompanyModal" tabindex="-1" role="dialog" aria-labelledby="editCompanyModal" aria-modal="true">
             <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -106,9 +106,9 @@ unset($__errorArgs, $__bag); ?> logo" id="logo-edit" name="logo" aria-describedb
             </div>
         </div>
     <!-- /editCompanyModal -->
+<?php endif; ?>
 
-
-
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('students.edit')): ?>
     <!-- updateStudentEmail -->
         <div class="modal fade flip" id="updateStudentEmail" tabindex="-1" role="dialog" aria-labelledby="updateStudentEmail" aria-modal="true">
             <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -167,4 +167,4 @@ unset($__errorArgs, $__bag); ?>
             </div>
         </div>
     <!-- /updateStudentEmail -->
-<?php /**PATH C:\xampp\htdocs\ceprocal\resources\views/certificates/modals/show-modals.blade.php ENDPATH**/ ?>
+<?php endif; ?><?php /**PATH C:\xampp\htdocs\ceprocal\resources\views/certificates/modals/show-modals.blade.php ENDPATH**/ ?>

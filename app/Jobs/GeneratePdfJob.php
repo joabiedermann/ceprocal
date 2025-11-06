@@ -15,7 +15,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
-use Spatie\LaravelPdf\Facades\Pdf;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class GeneratePdfJob implements ShouldQueue
 {
@@ -52,10 +52,10 @@ class GeneratePdfJob implements ShouldQueue
                 $student->hash_certificate = Hash::make($course_student->hash_certificate);
                 $filename = $student->id . '_' . str_replace(' ', '', Str::title($student->name)) . '.pdf';
 
-                Pdf::view('certificates.pdf', compact('course', 'student'))
-                    ->format('a4')
-                    ->landscape()
-                    ->save($path . '/' . $filename);
+
+                $pdf = Pdf::loadView('certificates.pdf', compact('course', 'students'));
+                $pdf->setPaper('A4', 'landscape');
+                $pdf->save($path . '/' . $filename);
             }
         } catch (\Exception $e) {
             Log::info($e->getMessage());

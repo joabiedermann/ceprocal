@@ -33,7 +33,7 @@
                                 <div class="form-group">
                                     <label class="col-form-label">Correo Electrónico</label>
                                     <input id="email" type="email" class="form-control" name="email"
-                                        value="<?php echo e(old('email', 'joaquin@bsoft.com.py')); ?>" placeholder="Ingrese su correo electrónico"> 
+                                        value="<?php echo e(old('email')); ?>" placeholder="Ingrese su correo electrónico"> 
                                     <?php $__errorArgs = ['email'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -52,7 +52,7 @@ unset($__errorArgs, $__bag); ?>
                                     <label class="col-form-label">Contraseña </label>
                                     <div class="form-input position-relative">
                                         <input id="password" type="password" class="form-control" name="password"
-                                            value="<?php echo e(old('password', 'Joapy_2024')); ?>" placeholder="Ingrese su contraseña">
+                                            value="<?php echo e(old('password')); ?>" placeholder="Ingrese su contraseña">
                                         <div class="show-hide"> <span class="show"></span></div>
                                         <?php $__errorArgs = ['password'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -78,7 +78,6 @@ unset($__errorArgs, $__bag); ?>
                                     </div>
                                 </div>
                             </form> 
-                            <a href="<?php echo e(route('landing')); ?>">Landing</a>
                         </div>
                     </div>
                 </div>

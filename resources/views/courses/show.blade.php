@@ -1,4 +1,4 @@
-{{-- @can('courses.show') --}}
+@can('courses.show')
     @extends('layouts.simple.master')
     @section('css')
         <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/vendors/toastify.min.css') }}">
@@ -77,11 +77,11 @@
                                             <div class="col-md-6">
                                                 <h5 class="card-title">Asociados al Curso</h5>
                                             </div>
-                                            {{-- @can('courses.edit') --}}
+                                            @can('courses.edit')
                                                 <div class="col-md-6 text-end">
                                                     <button type="button" class="btn btn-outline-success add-company-btn" data-bs-toggle="modal" data-bs-target="#createCompanyModal" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Agregar asociado" data-url="{{ route('courses.store_company', $course->id) }}"><i class="fa fa-plus"></i>&nbsp;Agregar</button>
                                                 </div>
-                                            {{-- @endcan --}}
+                                            @endcan
                                         </div>
                                     </div>
                                     <div class="card-body">
@@ -164,4 +164,4 @@
             window.destroy_company_url = "{{ url('courses/destroy_asociate') }}";
         </script>
     @endsection
-{{-- @endcan --}}
+@endcan

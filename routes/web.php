@@ -38,16 +38,17 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('certificates/store', [App\Http\Controllers\CertificateController::class, 'store'])->name('certificates.store');
     Route::get('certificates/shipments/', [App\Http\Controllers\CertificateController::class, 'shipments'])->name('certificates.shipments');
     Route::get('certificates/show_shipment/{id}', [App\Http\Controllers\CertificateController::class, 'show_shipment'])->name('certificates.show_shipment');
-    // Route::get('certificates/send/{id}', [App\Http\Controllers\CertificateController::class, 'send'])->name('certificates.send');
-    Route::get('certificates/generate_pdf', [App\Http\Controllers\CertificateController::class, 'generate_pdf'])->name('certificates.generate_pdf');
+    Route::get('certificates/generate_pdf/{id}', [App\Http\Controllers\CertificateController::class, 'generate_pdf'])->name('certificates.generate_pdf');
         //Send Email
         Route::post('certificates/send/{id}', [App\Http\Controllers\CertificateController::class, 'send'])->name('certificates.send');
         Route::get('certificates/send/{id}', [App\Http\Controllers\CertificateController::class, 'send'])->name('certificates.send');
-        Route::get('certificates/massive_send/{id}', [App\Http\Controllers\CertificateController::class, 'massive_send'])->name('certificates.massive_send');
+        Route::get('certificates/send_massive/{id}', [App\Http\Controllers\CertificateController::class, 'send_massive'])->name('certificates.send_massive');
     
     //Students
     Route::get('students', [App\Http\Controllers\StudentController::class, 'index'])->name('students.index');
     Route::get('students/show/{id}', [App\Http\Controllers\StudentController::class, 'show'])->name('students.show');
+    Route::get('students/edit/{id}', [App\Http\Controllers\StudentController::class, 'edit'])->name('students.edit');
+    Route::post('students/update/{id}', [App\Http\Controllers\StudentController::class, 'update'])->name('students.update');
     Route::get('students/get_status/{id}', [App\Http\Controllers\StudentController::class, 'get_status'])->name('students.get_status');
     Route::post('students/update_status/{id}', [App\Http\Controllers\StudentController::class, 'update_status'])->name('students.update_status');
     Route::get('students/get_email/{id}', [App\Http\Controllers\StudentController::class, 'get_email'])->name('students.get_email');
@@ -58,6 +59,8 @@ Route::group(['middleware' => ['auth']], function () {
     //Teachers
     Route::get('teachers', [App\Http\Controllers\TeacherController::class, 'index'])->name('teachers.index');
     Route::get('teachers/show/{id}', [App\Http\Controllers\TeacherController::class, 'show'])->name('teachers.show');
+    Route::get('teachers/edit/{id}', [App\Http\Controllers\TeacherController::class, 'edit'])->name('teachers.edit');
+    Route::post('teachers/update/{id}', [App\Http\Controllers\TeacherController::class, 'update'])->name('teachers.update');
     Route::get('teachers/get_status/{id}', [App\Http\Controllers\TeacherController::class, 'get_status'])->name('teachers.get_status');
     Route::post('teachers/update_status/{id}', [App\Http\Controllers\TeacherController::class, 'update_status'])->name('teachers.update_status');
     Route::get('teachers/get_destroy/{id}', [App\Http\Controllers\TeacherController::class, 'get_destroy'])->name('teachers.get_destroy');

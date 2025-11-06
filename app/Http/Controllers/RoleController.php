@@ -30,7 +30,7 @@ class RoleController extends Controller
      */
     public function index()
     {
-        // $this->authorize('roles.show');
+        $this->authorize('roles.show');
 
         try {
             DB::beginTransaction();
@@ -47,7 +47,7 @@ class RoleController extends Controller
     
     public function show($id)
     {
-        // $this->authorize('roles.show');
+        $this->authorize('roles.show');
 
         try {
             DB::beginTransaction();
@@ -72,7 +72,7 @@ class RoleController extends Controller
 
     public function create()
     {
-        // $this->authorize('roles.create');
+        $this->authorize('roles.create');
 
         try {
             DB::beginTransaction();
@@ -89,7 +89,7 @@ class RoleController extends Controller
 
     public function store(Request $request)
     {
-        // $this->authorize('roles.edit');
+        $this->authorize('roles.edit');
 
         $this->validate($request, [
             'nombre' => ['required', 'string', 'max:255', Rule::unique('roles', 'name')],
@@ -123,7 +123,7 @@ class RoleController extends Controller
     
     public function edit($id)
     {
-        // $this->authorize('roles.edit');
+        $this->authorize('roles.edit');
 
         try {
             DB::beginTransaction();
@@ -143,7 +143,7 @@ class RoleController extends Controller
 
     public function update(Request $request, $id)
     {
-        // $this->authorize('roles.edit');
+        $this->authorize('roles.edit');
 
         $this->validate($request, [
             'nombre' => ['required', 'string', 'max:255', Rule::unique('roles', 'name')->ignore($id)],
@@ -179,7 +179,7 @@ class RoleController extends Controller
     
     public function get_status($id)
     {
-        // $this->authorize('roles.edit_status');
+        $this->authorize('roles.edit_status');
 
         try {
             DB::beginTransaction();
@@ -201,7 +201,7 @@ class RoleController extends Controller
 
     public function update_status($id)
     {
-        // $this->authorize('roles.edit_status');
+        $this->authorize('roles.edit_status');
 
         try {
             DB::beginTransaction();
@@ -237,7 +237,7 @@ class RoleController extends Controller
 
     public function get_destroy($id)
     {
-        // $this->authorize('roles.destroy');
+        $this->authorize('roles.destroy');
 
         try {
             DB::beginTransaction();
@@ -259,7 +259,7 @@ class RoleController extends Controller
 
     public function destroy($id)
     {
-        // $this->authorize('roles.destroy');
+        $this->authorize('roles.destroy');
 
         try {
             DB::beginTransaction();

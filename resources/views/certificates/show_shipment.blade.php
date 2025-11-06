@@ -1,4 +1,4 @@
-{{-- @can('certificates.show_shipment') --}}
+@can('certificates.show_shipment')
     @extends('layouts.simple.master')
     @section('css')
         <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/vendors/animate.css') }}">
@@ -39,7 +39,14 @@
                                 <div class="card">
                                     <div class="card-header">
                                         <div class="row g-2">
-                                            <h5 class="card-title">Datos del Curso</h5>
+                                            <div class="col-lg-9">
+                                                <h5 class="card-title">Datos del Curso</h5>
+                                            </div>
+                                            @can('certificates.generate_pdf')
+                                                <div class="col-lg-3 text-end">
+                                                    <a type="button" class="btn btn-outline-primary me-2 generate-btn" data-url="{{ route('certificates.generate_pdf', $course->id) }}">Generar Certificados</a>
+                                                </div>
+                                            @endcan
                                         </div>
                                     </div>
                                     @php
@@ -119,12 +126,14 @@
                                     </div>
                                     <div class="card-footer">
                                         <div class="col-md-12 text-end">
-                                            <a type="button" class="btn btn-outline-danger me-2" data-url="{{ route('certificates.shipments') }}">Volver</a>
-                                            {{-- @can('certificates.send') --}}
-                                                @if ($status === 'Pendiente' || $status === 'Con Error')
-                                                    <a type="button" class="btn btn-outline-primary send-massive-btn" data-url="{{ route('certificates.massive_send', $course->id) }}"><i class="fa fa-send"></i>Envío Masivo</a>
-                                                @endif
-                                            {{-- @endcan --}}
+                                            <a type="button" class="btn btn-outline-danger me-2 cancel-btn" data-url="{{ route('certificates.shipments') }}">Volver</a>
+                                            @if ($course->certificates_generated == 1)
+                                                @can('certificates.send')
+                                                    @if ($status === 'Pendiente' || $status === 'Con Error')
+                                                        <a type="button" class="btn btn-outline-primary send-massive-btn" data-url="{{ route('certificates.send_massive', $course->id) }}"><i class="fa fa-send"></i>Envío Masivo</a>
+                                                    @endif
+                                                @endcan
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -136,11 +145,11 @@
                                             <div class="col-md-6">
                                                 <h5 class="card-title">Asociados al Curso</h5>
                                             </div>
-                                            {{-- @can('courses.edit') --}}
+                                            @can('courses.edit')
                                                 <div class="col-md-6 text-end">
                                                     <button type="button" class="btn btn-outline-success add-company-btn" data-bs-toggle="modal" data-bs-target="#createCompanyModal" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Agregar asociado" data-url="{{ route('courses.store_company', $course->id) }}"><i class="fa fa-plus"></i>&nbsp;Agregar</button>
                                                 </div>
-                                            {{-- @endcan --}}
+                                            @endcan
                                         </div>
                                     </div>
                                     <div class="card-body">
@@ -244,9 +253,11 @@
                                                             ">{{ $course_student->send_status }}</span>
                                                         </div>
                                                         <div class="col-md-1 text-center">
-                                                            {{-- @can('certificates.send') --}}
-                                                                <button type="button" class="btn btn-sm btn-outline-primary send-btn" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Enviar Certificado Individual" data-url="{{ route('certificates.send', $course_student->id) }}"><i class="fa fa-send"></i></button>
-                                                            {{-- @endcan --}}
+                                                            @if ($course->certificates_generated == 1)
+                                                                @can('certificates.send')
+                                                                    <button type="button" class="btn btn-sm btn-outline-primary send-btn" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Enviar Certificado Individual" data-url="{{ route('certificates.send', $course_student->id) }}"><i class="fa fa-send"></i></button>
+                                                                @endcan
+                                                            @endif
                                                         </div>
                                                     </div>
                                                 @endforeach
@@ -279,4 +290,4 @@
             window.update_email_url = "{{ url('students/update_email') }}";
         </script>
     @endsection
-{{-- @endcan --}}
+@endcan

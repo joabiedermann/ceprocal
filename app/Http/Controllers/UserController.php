@@ -30,7 +30,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        // $this->authorize('users.show');
+        $this->authorize('users.show');
 
         try {
             DB::beginTransaction();
@@ -47,7 +47,7 @@ class UserController extends Controller
     
     public function show($id)
     {
-        // $this->authorize('users.show');
+        $this->authorize('users.show');
 
         try {
             DB::beginTransaction();
@@ -76,7 +76,7 @@ class UserController extends Controller
 
     public function create()
     {
-        // $this->authorize('users.create');
+        $this->authorize('users.create');
 
         try {
             DB::beginTransaction();
@@ -97,7 +97,7 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        // $this->authorize('users.edit');
+        $this->authorize('users.edit');
 
         $this->validate($request, [
             'nombre' => ['required', 'string', 'max:255'],
@@ -136,7 +136,7 @@ class UserController extends Controller
     
     public function edit($id)
     {
-        // $this->authorize('users.edit');
+        $this->authorize('users.edit');
 
         try {
             DB::beginTransaction();
@@ -167,7 +167,7 @@ class UserController extends Controller
 
     public function update(Request $request, $id)
     {
-        // $this->authorize('users.edit');
+        $this->authorize('users.edit');
 
         $this->validate($request, [
             'nombre' => ['required', 'string', 'max:255'],
@@ -214,7 +214,7 @@ class UserController extends Controller
     
     public function get_status($id)
     {
-        // $this->authorize('users.edit_status');
+        $this->authorize('users.edit_status');
 
         try {
             DB::beginTransaction();
@@ -236,7 +236,7 @@ class UserController extends Controller
 
     public function update_status($id)
     {
-        // $this->authorize('users.edit_status');
+        $this->authorize('users.edit_status');
 
         try {
             DB::beginTransaction();
@@ -272,7 +272,7 @@ class UserController extends Controller
 
     public function get_destroy($id)
     {
-        // $this->authorize('users.destroy');
+        $this->authorize('users.destroy');
 
         try {
             DB::beginTransaction();
@@ -294,7 +294,7 @@ class UserController extends Controller
 
     public function destroy($id)
     {
-        // $this->authorize('users.destroy');
+        $this->authorize('users.destroy');
 
         try {
             DB::beginTransaction();

@@ -1,4 +1,4 @@
-{{-- @can('certificates.shipments') --}}
+@can('certificates.shipments')
         @extends('layouts.simple.master')
     @section('css')
         <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/vendors/animate.css') }}">
@@ -82,17 +82,14 @@
                                                                     <i class="fa fa-eye"></i>
                                                                 </a>
                                                             </li>
-                                                            {{-- @can('certificates.send') --}}
-                                                                @if ($status === 'Pendiente' || $status === 'Con Error')
+                                                            @can('certificates.send')
+                                                                @if (($status === 'Pendiente' || $status === 'Con Error') && $course->certificates_generated == 1)
                                                                     <li class="me-2">
                                                                         <a href="#" class="btn btn-xs btn-outline-info send-btn" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Envío Masivo (pendientes/errores)" data-url="{{ route('certificates.massive_send', $course->id) }}">
                                                                             <i class="fa fa-send"></i>
                                                                         </a>
                                                                     </li>
                                                                 @endif
-                                                            {{-- @endcan --}}
-                                                            @can('certificates')
-                                                                
                                                             @endcan
                                                         </ul>
                                                     </td>
@@ -115,4 +112,4 @@
         <script src="{{ asset('assets/js/sweetalert/sweetalert.min.js') }}"></script>
         <script src="{{ asset('assets/js/datatable/datatables/jquery.dataTables.min.js') }}"></script>
     @endsection
-{{-- @endcan --}}
+@endcan

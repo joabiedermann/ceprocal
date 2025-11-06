@@ -44,7 +44,7 @@ class CertificateController extends Controller
 
     public function shipments()
     {
-        // $this->authorize('certificates.shipments');
+        $this->authorize('certificates.shipments');
 
         try {
             DB::beginTransaction();
@@ -60,7 +60,7 @@ class CertificateController extends Controller
 
     public function show_shipment($id)
     {
-        // $this->authorize('certificates.show_shipment');
+        $this->authorize('certificates.show_shipment');
 
         try {
             DB::beginTransaction();
@@ -94,7 +94,7 @@ class CertificateController extends Controller
 
     public function import()
     {
-        // $this->authorize('certificates.upload');
+        $this->authorize('certificates.upload');
 
         try {
             DB::beginTransaction();
@@ -110,7 +110,7 @@ class CertificateController extends Controller
 
     public function upload(Request $request)
     {
-        // $this->authorize('certificates.upload');
+        $this->authorize('certificates.upload');
 
         $this->validate($request, [
             'planilla' => ['required',
@@ -310,11 +310,11 @@ class CertificateController extends Controller
 
     public function get_upload(Request $request)
     {
-        // $this->authorize('certificates.upload');
+        $this->authorize('certificates.upload');
 
         try {
             $course_id = $this->store($request);
-            return redirect()->route('certificates.show_shipment', $course_id);
+            return redirect()->route('certificates.shipments');
         } catch (\Exception $e) {
             Log::info($e->getMessage());
             return back()->with('error', 'El archivo no pudo ser importado. Contacte con el administrador');
@@ -323,7 +323,7 @@ class CertificateController extends Controller
 
     public function store(Request $request)
     {
-        // $this->authorize('certificates.upload');
+        $this->authorize('certificates.upload');
 
         $this->validate($request, [
             'nombre' => ['required', 'string', 'max:255', Rule::unique('courses', 'name')],
@@ -402,8 +402,6 @@ class CertificateController extends Controller
 
             DB::commit();
 
-            GeneratePdfJob::dispatch($course, $course->students);
-
             return $course->id;
         } catch (\Exception $e) {
             DB::rollback();
@@ -412,22 +410,43 @@ class CertificateController extends Controller
         }
     }
 
-    public function generate_pdf()
+    public function generate_pdf($id)
     {
-        $course = Course::find(17);
-        $student = Student::find(8);
-        $student->hash_certificate = Hash::make($student->id . Str::random(20));
+        try {
+            DB::beginTransaction();
 
-        return Pdf::view('certificates.pdf', ['course' => $course, 'student' => $student])
-                    ->format('a4')
-                    ->landscape();
+            $course = Course::find($id);
+            if (empty($course)) {
+                Log::error('No se encontró el curso con ID: ' . $id);
+                return response()->json([
+                    'message' => 'No se encontró el curso. Contacte con el administrador',
+                    'type' => 'error',
+                ]);
+            }
+
+            GeneratePdfJob::dispatch($course, $course->students);
+
+            $course->certificates_generated = 1;
+            $course->save();
+            
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Los certificados en formato PDF fueron generados correctamente.',
+                'type' => 'success',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::info($e->getMessage());
+            return back()->with('error', 'Los certificados en formato PDF no pudieron ser generados. Contacte con el administrador');
+        }
     }
 
     protected ?string $ms_token = null;
 
     public function connect(): ?string
     {
-        // $this->authorize('certificates.send');
+        $this->authorize('certificates.send');
 
         try {
             DB::beginTransaction();
@@ -476,7 +495,7 @@ class CertificateController extends Controller
 
     public function send($id)
     {
-        // $this->authorize('certificates.send');
+        $this->authorize('certificates.send');
 
         try {
             DB::beginTransaction();
@@ -487,6 +506,15 @@ class CertificateController extends Controller
                 Log::error('No se encontró la relación de curso-estudiante con ID: ' . $id);
                 return response()->json([
                     'message' => 'No se encontró la relación de curso-estudiante. Contacte con el administrador',
+                    'type' => 'error',
+                ]);
+            }
+
+            $course = Course::find($course_student->course_id);
+            if (empty($course)) {
+                Log::error('No se encontró el curso con ID: ' . $course_student->course_id);
+                return response()->json([
+                    'message' => 'No se encontró el curso. Contacte con el administrador',
                     'type' => 'error',
                 ]);
             }
@@ -505,11 +533,79 @@ class CertificateController extends Controller
                     'type' => 'error',
                 ]);
             }
-            
-            SendCertificateJob::dispatch($course_student, $ms_token);
 
+            $from = env('MSGRAPH_SENDER');
+            if (empty($from)) {
+                Log::error('No se ha configurado el remitente en las variables de entorno.');
+                return;
+            }
+
+            $recipient = [
+                ['emailAddress' => ['address' => $course_student->student->email]],
+            ];
+
+            $file = Storage::disk('public')->get(str_replace('storage/', '', $course_student->path_certificate));
+
+            if (!$file) {
+                Log::error('No se pudo leer el archivo adjunto desde el almacenamiento.', [
+                    'path' => $course_student->path_certificate
+                ]);
+                return;
+            }
+
+            $base64_file = base64_encode($file);
+
+            $attachment = [
+                [
+                    '@odata.type' => '#microsoft.graph.fileAttachment',
+                    'name' => 'Certificado.pdf',
+                    'contentBytes' => $base64_file,
+                ]
+            ];
+
+            $subject = 'Certificado de Finalización del Curso ' . $course_student->course->name;
+
+            $body_content = "<p>Estimado/a <b>{$course_student->student->name}</b>:</p>
+                                <p>Agradecemos sinceramente la confianza depositada en CEPROCAL al participar del <b>{$course_student->course->name}</b> con un total de <b>{$course_student->course->hours}</b> horas.
+                                <br>
+                                Adjunto encontrará su certificado de participación, emitido en reconocimiento al cumplimiento del programa.</p>
+                                <p>Nos alegra haber sido parte de esta etapa de su formación y queremos seguir acompañando su crecimiento profesional.
+                                <br>
+                                Lo/a invitamos a seguir nuestras novedades, próximos cursos y actividades en nuestras redes sociales y página web:</p>
+                                <p>🌐 <a href='https://www.ceprocal.org.py' target='_blank'>www.ceprocal.org.py</a>
+                                <br>
+                                📱 Facebook: @ceprocal | Instagram: @ceprocal</p>
+                                <p>Atentamente,</p>
+                                <p><b>CEPROCAL</b></p>";
+
+            $body = [
+                'message' => [
+                    'subject' => $subject,
+                    'body' => [
+                        'contentType' => 'HTML',
+                        'content' => $body_content,
+                    ],
+                    'toRecipients' => $recipient,
+                    'attachments' => $attachment,
+                ],
+                'saveToSentItems' => false,
+            ];
+
+            
+            $response = Http::withToken($this->ms_token)
+                ->post('https://graph.microsoft.com/v1.0/users/' . $from . '/sendMail', $body);
+
+            if ($response->successful()) {
+                Log::info('Correo enviado correctamente a: ' . $course_student->student->email);
+            } else {
+                Log::error('Error al enviar correo', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+            }
+            
             return response()->json([
-                    'message' => 'El correo se está enviando en segundo plano. Por favor, espere unos minutos y actualice la página',
+                    'message' => 'El correo fue enviado correctamente.',
                     'type' => 'success',
                 ]);
 
@@ -518,6 +614,120 @@ class CertificateController extends Controller
             Log::error('Excepción al enviar certificado', [
                 'message' => $e->getMessage(),
                 'course_student_id' => $id,
+            ]);
+            return response()->json([
+                    'message' => 'El correo no se pudo enviar. Contacte con el administrador',
+                    'type' => 'error',
+                ]);
+        }
+    }
+
+    public function send_massive($id)
+    {
+        $this->authorize('certificates.send');
+
+        try {
+            DB::beginTransaction();
+
+            $course = Course::find($id);
+
+            $from = env('MSGRAPH_SENDER');
+            if (empty($from)) {
+                Log::error('No se ha configurado el remitente en las variables de entorno.');
+                return;
+            }
+
+            $ms_token = $this->ms_token ?? $this->connect();
+            if (!$ms_token) {
+                Log::error('No se pudo obtener un token válido de Microsoft Graph para enviar los certificados del curso con ID: ' . $course->id);
+                return response()->json([
+                    'message' => 'No se pudo obtener un token válido de Microsoft Graph. Contacte con el administrador',
+                    'type' => 'error',
+                ]);
+            }
+
+            foreach ($course->students as $course_student) {
+                $recipient = [
+                    ['emailAddress' => ['address' => $course_student->student->email]],
+                ];
+
+                $file = Storage::disk('public')->get(str_replace('storage/', '', $course_student->path_certificate));
+
+                if (!$file) {
+                    Log::error('No se pudo leer el archivo adjunto desde el almacenamiento.', [
+                        'path' => $course_student->path_certificate
+                    ]);
+                    return;
+                }
+
+                $base64_file = base64_encode($file);
+
+                $attachment = [
+                    [
+                        '@odata.type' => '#microsoft.graph.fileAttachment',
+                        'name' => 'Certificado.pdf',
+                        'contentBytes' => $base64_file,
+                    ]
+                ];
+
+                $subject = 'Certificado de Finalización del Curso ' . $course_student->course->name;
+
+                $body_content = "<p>Estimado/a <b>{$course_student->student->name}</b>:</p>
+                                <p>Agradecemos sinceramente la confianza depositada en CEPROCAL al participar del <b>{$course_student->course->name}</b> con un total de <b>{$course_student->course->hours}</b> horas.
+                                <br>
+                                Adjunto encontrará su certificado de participación, emitido en reconocimiento al cumplimiento del programa.</p>
+                                <p>Nos alegra haber sido parte de esta etapa de su formación y queremos seguir acompañando su crecimiento profesional.
+                                <br>
+                                Lo/a invitamos a seguir nuestras novedades, próximos cursos y actividades en nuestras redes sociales y página web:</p>
+                                <p>🌐 <a href='https://www.ceprocal.org.py' target='_blank'>www.ceprocal.org.py</a>
+                                <br>
+                                📱 Facebook: @ceprocal | Instagram: @ceprocal</p>
+                                <p>Atentamente,</p>
+                                <p><b>CEPROCAL</b></p>";
+
+                $body = [
+                    'message' => [
+                        'subject' => $subject,
+                        'body' => [
+                            'contentType' => 'HTML',
+                            'content' => $body_content,
+                        ],
+                        'toRecipients' => $recipient,
+                        'attachments' => $attachment,
+                    ],
+                    'saveToSentItems' => false,
+                ];
+
+                
+                $response = Http::withToken($this->ms_token)
+                    ->post('https://graph.microsoft.com/v1.0/users/' . $from . '/sendMail', $body);
+
+                if ($response->successful()) {
+                    Log::info('Correo enviado correctamente a: ' . $course_student->student->email);
+                } else {
+                    Log::error('Error al enviar correo', [
+                        'status' => $response->status(),
+                        'body' => $response->body(),
+                    ]);
+                }
+
+                $course_student->send_status = 'Enviado';
+                $course_student->send_date = Carbon::now();
+                $course_student->save();
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Los correos han sido enviados exitosamente.',
+                'type' => 'success',
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Excepción al enviar certificados', [
+                'message' => $e->getMessage(),
+                'course' => $id,
             ]);
             return response()->json([
                     'message' => 'El correo no se pudo enviar. Contacte con el administrador',

@@ -1,4 +1,4 @@
-{{-- @can('courses.show') --}}
+@can('courses.show')
         @extends('layouts.simple.master')
     @section('css')
         <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/vendors/animate.css') }}">
@@ -95,27 +95,27 @@
                                                                     <i class="fa fa-eye"></i>
                                                                 </a>
                                                             </li>
-                                                            {{-- @can('courses.edit') --}}
+                                                            @can('courses.edit')
                                                                 <li class="me-2">
                                                                     <a href="{{ route('courses.edit', $course->id) }}" class="btn btn-xs btn-outline-warning" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Visualizar">
                                                                         <i class="fa fa-pencil"></i>
                                                                     </a>
                                                                 </li>
-                                                            {{-- @endcan --}}
-                                                            {{-- @can('courses.edit_status') --}}
+                                                            @endcan
+                                                            @can('courses.edit_status')
                                                                 <li class="me-2">
                                                                     <a href="#" class="btn btn-xs {{ $icon_class }} status-btn" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="{{ $text_icon }}" data-url="{{ route('courses.get_status', $course->id) }}">
                                                                         <i class="fa {{ $icon }}"></i>
                                                                     </a>
                                                                 </li>
-                                                            {{-- @endcan --}}
-                                                            {{-- @can('courses.destroy') --}}
+                                                            @endcan
+                                                            @can('courses.destroy')
                                                                 <li>
                                                                     <a href="#" class="btn btn-xs btn-outline-danger destroy-btn" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Visualizar" data-url="{{ route('courses.get_destroy', $course->id) }}">
                                                                         <i class="fa fa-trash"></i>
                                                                     </a>
                                                                 </li>
-                                                            {{-- @endcan --}}
+                                                            @endcan
                                                         </ul>
                                                     </td>
                                                 </tr>
@@ -137,4 +137,4 @@
         <script src="{{ asset('assets/js/sweetalert/sweetalert.min.js') }}"></script>
         <script src="{{ asset('assets/js/datatable/datatables/jquery.dataTables.min.js') }}"></script>
     @endsection
-{{-- @endcan --}}
+@endcan

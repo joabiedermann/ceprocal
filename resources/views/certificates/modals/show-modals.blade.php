@@ -1,4 +1,4 @@
-{{-- @can('courses.edit') --}}
+@can('courses.edit')
     <!-- createCompanyModal -->
         <div class="modal fade flip" id="createCompanyModal" tabindex="-1" role="dialog" aria-labelledby="createCompanyModal" aria-modal="true">
             <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -44,9 +44,9 @@
             </div>
         </div>
     <!-- /createCompanyModal -->
-{{-- @endcan --}}
+@endcan
 
-{{-- @can('courses.edit') --}}
+@can('courses.edit')
     <!-- editCompanyModal -->
         <div class="modal fade flip" id="editCompanyModal" tabindex="-1" role="dialog" aria-labelledby="editCompanyModal" aria-modal="true">
             <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -92,9 +92,9 @@
             </div>
         </div>
     <!-- /editCompanyModal -->
-{{-- @endcan --}}
+@endcan
 
-{{-- @can('students.edit') --}}
+@can('students.edit')
     <!-- updateStudentEmail -->
         <div class="modal fade flip" id="updateStudentEmail" tabindex="-1" role="dialog" aria-labelledby="updateStudentEmail" aria-modal="true">
             <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -139,4 +139,4 @@
             </div>
         </div>
     <!-- /updateStudentEmail -->
-{{-- @endcan --}}
+@endcan

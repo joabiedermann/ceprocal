@@ -54,6 +54,25 @@ $(document).ready(function() {
         });
     })
 
+    $('.generate-btn').on('click', function () {
+        Swal.fire({
+            customClass: {
+                confirmButton: 'btn btn-outline-success',
+                cancelButton: 'btn btn-outline-danger',
+            },
+            title: "¿Está seguro de generar los certificados en PDF?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Sí, generar!",
+            cancelButtonText: "Cancelar",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $url = $(this).data('url');
+                generate($url);
+            }
+        });
+    })
+
     $('.cancel-btn').on('click', function () {
         Swal.fire({
             customClass: {
@@ -287,7 +306,71 @@ $(document).ready(function() {
     });
 })
 
+function generate($url) {
+    $.ajax({
+        url: $url,
+        type: 'GET',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        processData: false,
+        contentType: false,
+        cache: false,
+    }).then(function(response) {
+        window.localStorage.setItem('message', response.message);
+        window.localStorage.setItem('type', response.type);
+        window.location.reload();
+    }).fail(function(response) {
+        if (response.status === 419) {
+            Toastify({
+                text: "Página expirada. Recargue la página.",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                stopOnFocus: true,
+                style: {
+                    background: "linear-gradient(to right, #800000, #ff0000)",
+                    color: "#fff"
+                }
+            }).showToast();
+        }
+    })
+};
+
 function send($url) {
+    $.ajax({
+        url: $url,
+        type: 'GET',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        processData: false,
+        contentType: false,
+        cache: false,
+    }).then(function(response) {
+        window.localStorage.setItem('message', response.message);
+        window.localStorage.setItem('type', response.type);
+        window.location.reload();
+    }).fail(function(response) {
+        if (response.status === 419) {
+            Toastify({
+                text: "Página expirada. Recargue la página.",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                stopOnFocus: true,
+                style: {
+                    background: "linear-gradient(to right, #800000, #ff0000)",
+                    color: "#fff"
+                }
+            }).showToast();
+        }
+    })
+};
+
+function send_massive($url) {
     $.ajax({
         url: $url,
         type: 'GET',

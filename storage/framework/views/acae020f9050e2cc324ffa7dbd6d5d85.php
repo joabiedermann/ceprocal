@@ -1,3 +1,4 @@
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('courses.show')): ?>
         
     <?php $__env->startSection('css'); ?>
         <link rel="stylesheet" type="text/css" href="<?php echo e(asset('assets/css/vendors/animate.css')); ?>">
@@ -94,27 +95,27 @@
                                                                     <i class="fa fa-eye"></i>
                                                                 </a>
                                                             </li>
-                                                            
+                                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('courses.edit')): ?>
                                                                 <li class="me-2">
                                                                     <a href="<?php echo e(route('courses.edit', $course->id)); ?>" class="btn btn-xs btn-outline-warning" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Visualizar">
                                                                         <i class="fa fa-pencil"></i>
                                                                     </a>
                                                                 </li>
-                                                            
-                                                            
+                                                            <?php endif; ?>
+                                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('courses.edit_status')): ?>
                                                                 <li class="me-2">
                                                                     <a href="#" class="btn btn-xs <?php echo e($icon_class); ?> status-btn" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="<?php echo e($text_icon); ?>" data-url="<?php echo e(route('courses.get_status', $course->id)); ?>">
                                                                         <i class="fa <?php echo e($icon); ?>"></i>
                                                                     </a>
                                                                 </li>
-                                                            
-                                                            
+                                                            <?php endif; ?>
+                                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('courses.destroy')): ?>
                                                                 <li>
                                                                     <a href="#" class="btn btn-xs btn-outline-danger destroy-btn" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Visualizar" data-url="<?php echo e(route('courses.get_destroy', $course->id)); ?>">
                                                                         <i class="fa fa-trash"></i>
                                                                     </a>
                                                                 </li>
-                                                            
+                                                            <?php endif; ?>
                                                         </ul>
                                                     </td>
                                                 </tr>
@@ -136,6 +137,6 @@
         <script src="<?php echo e(asset('assets/js/sweetalert/sweetalert.min.js')); ?>"></script>
         <script src="<?php echo e(asset('assets/js/datatable/datatables/jquery.dataTables.min.js')); ?>"></script>
     <?php $__env->stopSection(); ?>
-
+<?php endif; ?>
 
 <?php echo $__env->make('layouts.simple.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\ceprocal\resources\views/courses/index.blade.php ENDPATH**/ ?>

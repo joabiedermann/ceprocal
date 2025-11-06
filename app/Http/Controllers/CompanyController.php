@@ -30,7 +30,7 @@ class CompanyController extends Controller
 
     public function show()
     {
-        // $this->authorize('company.show');
+        $this->authorize('company.show');
 
         try {
             DB::beginTransaction();
@@ -50,7 +50,7 @@ class CompanyController extends Controller
 
     public function create()
     {
-        // $this->authorize('company.create');
+        $this->authorize('company.create');
 
         try {
             DB::beginTransaction();
@@ -64,7 +64,7 @@ class CompanyController extends Controller
 
     public function store(Request $request)
     {
-        // $this->authorize('company.edit');
+        $this->authorize('company.edit');
 
         $this->validate($request, [
             'nombre_fantasia' => ['required', 'string', 'max:255'],
@@ -122,7 +122,7 @@ class CompanyController extends Controller
     
     public function edit($id)
     {
-        // $this->authorize('company.edit');
+        $this->authorize('company.edit');
 
         try {
             DB::beginTransaction();
@@ -138,7 +138,7 @@ class CompanyController extends Controller
 
     public function update(Request $request, $id)
     {
-        // $this->authorize('company.edit');
+        $this->authorize('company.edit');
 
         $this->validate($request, [
             'nombre_fantasia' => ['required', 'string', 'max:255'],

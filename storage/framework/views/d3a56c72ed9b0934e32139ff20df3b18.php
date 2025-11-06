@@ -1,3 +1,4 @@
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('users.show')): ?>
         
     <?php $__env->startSection('css'); ?>
         <link rel="stylesheet" type="text/css" href="<?php echo e(asset('assets/css/vendors/animate.css')); ?>">
@@ -34,13 +35,13 @@
                         </ol>
                     </div>
                 </div>
-                
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('users.create')): ?>
                     <div class="row g-2">
                         <div class="col-sm-12 d-flex justify-content-end">
                             <button type="button" class="btn btn-outline-success create-btn" data-bs-toggle="modal" data-bs-target="#createModal" data-url="<?php echo e(route('users.create')); ?>"><i class="fa fa-plus align-middle"></i> &nbsp; Agregar</button>
                         </div>
                     </div>
-                
+                <?php endif; ?>
             </div>
         </div>
         <!-- Container-fluid starts-->
@@ -89,28 +90,28 @@
                                                 <i class="fa fa-eye" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Visualizar"></i>
                                             </a>
                                         </li>
-                                        
+                                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('users.edit')): ?>
                                             <li>
                                                 <a href="#" class="edit-btn" data-bs-toggle="modal" data-bs-target="#editModal" data-url="<?php echo e(route('users.edit', $user->id)); ?>">
                                                     <i class="fa fa-pencil" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Editar"></i>
                                                 </a>
                                             </li>
-                                        
+                                        <?php endif; ?>
                                         <?php if($user->id !== Auth::id()): ?>
-                                            
+                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('users.edit_status')): ?>
                                                 <li>
                                                     <a href="#" class="status-btn" data-url="<?php echo e(route('users.get_status', $user->id)); ?>">
                                                         <i class="fa <?php echo e($icon); ?>" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="<?php echo e($text_icon); ?>"></i>
                                                     </a>
                                                 </li>
-                                            
-                                            
+                                            <?php endif; ?>
+                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('users.destroy')): ?>
                                                 <li>
                                                     <a href="#" class="destroy-btn" data-url="<?php echo e(route('users.get_destroy', $user->id)); ?>">
                                                         <i class="fa fa-trash" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Eliminar"></i>
                                                     </a>
                                                 </li>
-                                            
+                                            <?php endif; ?>
                                         <?php endif; ?>
                                     </ul>
                                     <ul class="social-follow">
@@ -139,6 +140,6 @@
         <script src="<?php echo e(asset('assets/js/select2/spanish.js')); ?>"></script>
         <script src="<?php echo e(asset('assets/js/sweetalert/sweetalert.min.js')); ?>"></script>
     <?php $__env->stopSection(); ?>
-
+<?php endif; ?>
 
 <?php echo $__env->make('layouts.simple.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\ceprocal\resources\views/users/index.blade.php ENDPATH**/ ?>

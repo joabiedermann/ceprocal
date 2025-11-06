@@ -1,4 +1,4 @@
-{{-- @can('certificates.upload') --}}
+@can('certificates.upload')
     @extends('layouts.simple.master')
     @section('css')
         <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/vendors/animate.css') }}">
@@ -224,4 +224,4 @@
         <script src="{{ asset('assets/js/sweetalert/sweetalert.min.js') }}"></script>
         <script src="{{ asset('assets/js/cleave/cleave.min.js') }}"></script>
     @endsection
-{{-- @endcan --}}
+@endcan

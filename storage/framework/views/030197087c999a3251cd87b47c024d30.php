@@ -1,3 +1,4 @@
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('certificates.show_shipment')): ?>
     
     <?php $__env->startSection('css'); ?>
         <link rel="stylesheet" type="text/css" href="<?php echo e(asset('assets/css/vendors/animate.css')); ?>">
@@ -38,7 +39,14 @@
                                 <div class="card">
                                     <div class="card-header">
                                         <div class="row g-2">
-                                            <h5 class="card-title">Datos del Curso</h5>
+                                            <div class="col-lg-9">
+                                                <h5 class="card-title">Datos del Curso</h5>
+                                            </div>
+                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('certificates.generate_pdf')): ?>
+                                                <div class="col-lg-3 text-end">
+                                                    <a type="button" class="btn btn-outline-primary me-2 generate-btn" data-url="<?php echo e(route('certificates.generate_pdf', $course->id)); ?>">Generar Certificados</a>
+                                                </div>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                     <?php
@@ -200,12 +208,14 @@ unset($__errorArgs, $__bag); ?>
                                     </div>
                                     <div class="card-footer">
                                         <div class="col-md-12 text-end">
-                                            <a type="button" class="btn btn-outline-danger me-2" data-url="<?php echo e(route('certificates.shipments')); ?>">Volver</a>
-                                            
-                                                <?php if($status === 'Pendiente' || $status === 'Con Error'): ?>
-                                                    <a type="button" class="btn btn-outline-primary send-massive-btn" data-url="<?php echo e(route('certificates.massive_send', $course->id)); ?>"><i class="fa fa-send"></i>Envío Masivo</a>
+                                            <a type="button" class="btn btn-outline-danger me-2 cancel-btn" data-url="<?php echo e(route('certificates.shipments')); ?>">Volver</a>
+                                            <?php if($course->certificates_generated == 1): ?>
+                                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('certificates.send')): ?>
+                                                    <?php if($status === 'Pendiente' || $status === 'Con Error'): ?>
+                                                        <a type="button" class="btn btn-outline-primary send-massive-btn" data-url="<?php echo e(route('certificates.send_massive', $course->id)); ?>"><i class="fa fa-send"></i>Envío Masivo</a>
+                                                    <?php endif; ?>
                                                 <?php endif; ?>
-                                            
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
@@ -217,11 +227,11 @@ unset($__errorArgs, $__bag); ?>
                                             <div class="col-md-6">
                                                 <h5 class="card-title">Asociados al Curso</h5>
                                             </div>
-                                            
+                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('courses.edit')): ?>
                                                 <div class="col-md-6 text-end">
                                                     <button type="button" class="btn btn-outline-success add-company-btn" data-bs-toggle="modal" data-bs-target="#createCompanyModal" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Agregar asociado" data-url="<?php echo e(route('courses.store_company', $course->id)); ?>"><i class="fa fa-plus"></i>&nbsp;Agregar</button>
                                                 </div>
-                                            
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                     <div class="card-body">
@@ -325,9 +335,11 @@ unset($__errorArgs, $__bag); ?>
                                                             "><?php echo e($course_student->send_status); ?></span>
                                                         </div>
                                                         <div class="col-md-1 text-center">
-                                                            
-                                                                <button type="button" class="btn btn-sm btn-outline-primary send-btn" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Enviar Certificado Individual" data-url="<?php echo e(route('certificates.send', $course_student->id)); ?>"><i class="fa fa-send"></i></button>
-                                                            
+                                                            <?php if($course->certificates_generated == 1): ?>
+                                                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('certificates.send')): ?>
+                                                                    <button type="button" class="btn btn-sm btn-outline-primary send-btn" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Enviar Certificado Individual" data-url="<?php echo e(route('certificates.send', $course_student->id)); ?>"><i class="fa fa-send"></i></button>
+                                                                <?php endif; ?>
+                                                            <?php endif; ?>
                                                         </div>
                                                     </div>
                                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -360,5 +372,5 @@ unset($__errorArgs, $__bag); ?>
             window.update_email_url = "<?php echo e(url('students/update_email')); ?>";
         </script>
     <?php $__env->stopSection(); ?>
-
+<?php endif; ?>
 <?php echo $__env->make('layouts.simple.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\ceprocal\resources\views/certificates/show_shipment.blade.php ENDPATH**/ ?>

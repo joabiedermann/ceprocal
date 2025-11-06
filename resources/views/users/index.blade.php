@@ -1,4 +1,4 @@
-{{-- @can('users.show') --}}
+@can('users.show')
         @extends('layouts.simple.master')
     @section('css')
         <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/vendors/animate.css') }}">
@@ -35,13 +35,13 @@
                         </ol>
                     </div>
                 </div>
-                {{-- @can('users.create') --}}
+                @can('users.create')
                     <div class="row g-2">
                         <div class="col-sm-12 d-flex justify-content-end">
                             <button type="button" class="btn btn-outline-success create-btn" data-bs-toggle="modal" data-bs-target="#createModal" data-url="{{ route('users.create') }}"><i class="fa fa-plus align-middle"></i> &nbsp; Agregar</button>
                         </div>
                     </div>
-                {{-- @endcan --}}
+                @endcan
             </div>
         </div>
         <!-- Container-fluid starts-->
@@ -90,28 +90,28 @@
                                                 <i class="fa fa-eye" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Visualizar"></i>
                                             </a>
                                         </li>
-                                        {{-- @can('users.edit') --}}
+                                        @can('users.edit')
                                             <li>
                                                 <a href="#" class="edit-btn" data-bs-toggle="modal" data-bs-target="#editModal" data-url="{{ route('users.edit', $user->id) }}">
                                                     <i class="fa fa-pencil" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Editar"></i>
                                                 </a>
                                             </li>
-                                        {{-- @endcan --}}
+                                        @endcan
                                         @if ($user->id !== Auth::id())
-                                            {{-- @can('users.edit_status') --}}
+                                            @can('users.edit_status')
                                                 <li>
                                                     <a href="#" class="status-btn" data-url="{{ route('users.get_status', $user->id) }}">
                                                         <i class="fa {{ $icon }}" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="{{ $text_icon }}"></i>
                                                     </a>
                                                 </li>
-                                            {{-- @endcan --}}
-                                            {{-- @can('users.destroy') --}}
+                                            @endcan
+                                            @can('users.destroy')
                                                 <li>
                                                     <a href="#" class="destroy-btn" data-url="{{ route('users.get_destroy', $user->id) }}">
                                                         <i class="fa fa-trash" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Eliminar"></i>
                                                     </a>
                                                 </li>
-                                            {{-- @endcan --}}
+                                            @endcan
                                         @endif
                                     </ul>
                                     <ul class="social-follow">
@@ -140,4 +140,4 @@
         <script src="{{ asset('assets/js/select2/spanish.js') }}"></script>
         <script src="{{ asset('assets/js/sweetalert/sweetalert.min.js') }}"></script>
     @endsection
-{{-- @endcan --}}
+@endcan

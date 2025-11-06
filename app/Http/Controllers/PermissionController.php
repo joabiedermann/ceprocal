@@ -29,7 +29,7 @@ class PermissionController extends Controller
      */
     public function index()
     {
-        // $this->authorize('permissions.show');
+        $this->authorize('permissions.show');
 
         try {
             DB::beginTransaction();
@@ -46,7 +46,7 @@ class PermissionController extends Controller
     
     public function show($id)
     {
-        // $this->authorize('permissions.show');
+        $this->authorize('permissions.show');
 
         try {
             DB::beginTransaction();

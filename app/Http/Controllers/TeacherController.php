@@ -29,7 +29,7 @@ class TeacherController extends Controller
      */
     public function index()
     {
-        // $this->authorize('teachers.show');
+        $this->authorize('teachers.show');
 
         try {
             DB::beginTransaction();
@@ -46,7 +46,7 @@ class TeacherController extends Controller
     
     public function show($id)
     {
-        // $this->authorize('teachers.show');
+        $this->authorize('teachers.show');
 
         try {
             DB::beginTransaction();
@@ -69,10 +69,75 @@ class TeacherController extends Controller
             return back()->with('error', 'No se puede obtener el registro. Contacte con el administrador.');
         }
     }
+
+    public function edit($id)
+    {
+        $this->authorize('teachers.edit');
+
+        try {
+            DB::beginTransaction();
+
+            $teacher = Teacher::findOrFail($id);
+            switch ($teacher->status) {
+                case 0:
+                    $teacher->status_text = 'Inactivo';
+                    break;
+                default:
+                    $teacher->status_text = 'Activo';
+                    break;
+            }
+
+            return response()->json([
+                'teacher' => $teacher,
+            ]);
+        } catch (\Exception $e) {
+            Log::info($e->getMessage());
+            return back()->with('error', 'No se puede obtener el registro. Contacte con el administrador.');
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        $this->authorize('teachers.edit');
+
+        $this->validate($request, [
+            'nombre' => ['required', 'string', 'max:255'],
+            'numero_documento' => ['required', 'string', 'max:255', Rule::unique('teachers', 'document_number')->ignore($id)],
+            'telefono' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
+            'estado' => ['required', 'numeric', Rule::in([0, 1])],
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $teacher = Teacher::findOrFail($id);
+            $teacher->name = $request->nombre;
+            $teacher->document_number = $request->numero_documento;
+            $teacher->phone_number = $request->telefono;
+            $teacher->email = Str::lower($request->email);
+            $teacher->status = $request->estado;
+            $teacher->save();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'El docente ' . $teacher->name . ' ha sido actualizado correctamente.',
+                'type' => 'success',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::info($e->getMessage());
+            return response()->json([
+                'message' => 'No se puede actualizar el registro. Contacte con el administrador',
+                'type' => 'error',
+            ]);
+        }
+    }
     
     public function get_status($id)
     {
-        // $this->authorize('teachers.edit_status');
+        $this->authorize('teachers.edit_status');
 
         try {
             DB::beginTransaction();
@@ -94,7 +159,7 @@ class TeacherController extends Controller
 
     public function update_status($id)
     {
-        // $this->authorize('teachers.edit_status');
+        $this->authorize('teachers.edit_status');
 
         try {
             DB::beginTransaction();
@@ -130,7 +195,7 @@ class TeacherController extends Controller
 
     public function get_destroy($id)
     {
-        // $this->authorize('teachers.destroy');
+        $this->authorize('teachers.destroy');
 
         try {
             DB::beginTransaction();
@@ -152,7 +217,7 @@ class TeacherController extends Controller
 
     public function destroy($id)
     {
-        // $this->authorize('teachers.destroy');
+        $this->authorize('teachers.destroy');
 
         try {
             DB::beginTransaction();

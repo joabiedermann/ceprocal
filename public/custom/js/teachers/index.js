@@ -61,6 +61,46 @@ $(document).ready(function() {
         });
     });
 
+    $('.edit-btn').on('click', function () {
+        const url = $(this).data('url');
+        if (!url) return;
+
+        $.ajax({
+            url: url,
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            dataType: 'json',
+            success: function (data) {
+                $('#nombre-edit').val(data.teacher.name);
+                $('#numero_documento-edit').val(data.teacher.document_number);
+                $('#telefono-edit').val(data.teacher.phone_number);
+                $('#email-edit').val(data.teacher.email);
+
+                let $status_edit = $('#estado-edit');
+                $status_edit.val(data.teacher.status).trigger('change');
+
+                $('#update-btn').data('url', "teachers/update/ " + data.teacher.id);
+            },
+            error: function (xhr, status, error) {
+                console.error('Error al obtener datos:', error);
+                Toastify({
+                    text: "Error al obtener datos",
+                    duration: 2000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    stopOnFocus: true,
+                    style: {
+                        background: "linear-gradient(to right, #800000, #ff0000)", // granate a rojo
+                        color: "#fff"
+                    }
+                }).showToast();
+            }
+        });
+    });
+
     $('.status-btn').on('click', function () {
         const url = $(this).data('url');
         if (!url) return;
@@ -155,7 +195,72 @@ $(document).ready(function() {
             }
         });
     });
+
+    $('#update-btn').on('click', function () {
+        Swal.fire({
+            customClass: {
+                confirmButton: 'btn btn-outline-success',
+                cancelButton: 'btn btn-outline-danger',
+            },
+            title: "¿Está seguro de actualizar el registro?",
+            text: "Este cambio es irreversible!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Sí, actualizar!",
+            cancelButtonText: "Cancelar",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let $url = $(this).data('url');
+                update($url);
+            }
+        });
+    })
 })
+
+function update($url) {
+    let $formData = new FormData(document.getElementById('update-form'));
+    $('#update-form').find('.is-invalid').removeClass('is-invalid');
+    $('#update-form').find('.invalid-feedback').remove();
+    $.ajax({
+        url: $url,
+        data: $formData,
+        type: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        processData: false,
+        contentType: false,
+        cache: false,
+    }).then(function(response) {
+        window.localStorage.setItem('message', response.message);
+        window.localStorage.setItem('type', response.type);
+        window.location.reload();
+    }).fail(function(response) {
+        if (response.status === 419) {
+            Toastify({
+                text: "Página expirada. Recargue la página.",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                stopOnFocus: true,
+                style: {
+                    background: "linear-gradient(to right, #800000, #ff0000)",
+                    color: "#fff"
+                }
+            }).showToast();
+        }
+
+        $.each(response.responseJSON.errors, function ($key, $value) {
+            let $input = $(`[name="${$key}"]`);
+            if ($key.includes('detalles')) {
+                $input = $(`[id="${$key.split('.')[2]}-${$key.split('.')[1]}"]`);
+            }
+            $input.addClass('is-invalid');
+            $('<span>').addClass('invalid-feedback').html($value.join('<strong>')).insertAfter($input);
+        })
+    })
+};
 
 function update_status($url) {
     $.ajax({

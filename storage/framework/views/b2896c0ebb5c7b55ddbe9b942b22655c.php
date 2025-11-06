@@ -1,4 +1,4 @@
-
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('certificates.shipments')): ?>
         
     <?php $__env->startSection('css'); ?>
         <link rel="stylesheet" type="text/css" href="<?php echo e(asset('assets/css/vendors/animate.css')); ?>">
@@ -82,17 +82,14 @@
                                                                     <i class="fa fa-eye"></i>
                                                                 </a>
                                                             </li>
-                                                            
-                                                                <?php if($status === 'Pendiente' || $status === 'Con Error'): ?>
+                                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('certificates.send')): ?>
+                                                                <?php if(($status === 'Pendiente' || $status === 'Con Error') && $course->certificates_generated == 1): ?>
                                                                     <li class="me-2">
                                                                         <a href="#" class="btn btn-xs btn-outline-info send-btn" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Envío Masivo (pendientes/errores)" data-url="<?php echo e(route('certificates.massive_send', $course->id)); ?>">
                                                                             <i class="fa fa-send"></i>
                                                                         </a>
                                                                     </li>
                                                                 <?php endif; ?>
-                                                            
-                                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('certificates')): ?>
-                                                                
                                                             <?php endif; ?>
                                                         </ul>
                                                     </td>
@@ -115,6 +112,6 @@
         <script src="<?php echo e(asset('assets/js/sweetalert/sweetalert.min.js')); ?>"></script>
         <script src="<?php echo e(asset('assets/js/datatable/datatables/jquery.dataTables.min.js')); ?>"></script>
     <?php $__env->stopSection(); ?>
-
+<?php endif; ?>
 
 <?php echo $__env->make('layouts.simple.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\ceprocal\resources\views/certificates/shipments.blade.php ENDPATH**/ ?>

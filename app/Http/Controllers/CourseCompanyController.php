@@ -31,7 +31,7 @@ class CourseCompanyController extends Controller
     
     public function store(Request $request, $id)
     {
-        // $this->authorize('courses.edit');
+        $this->authorize('courses.edit');
 
         $this->validate($request, [
             'nombre' => ['required', 'string', 'max:255'],
@@ -77,7 +77,7 @@ class CourseCompanyController extends Controller
     
     public function edit($id)
     {
-        // $this->authorize('courses.edit');
+        $this->authorize('courses.edit');
 
         try {
             DB::beginTransaction();
@@ -98,7 +98,7 @@ class CourseCompanyController extends Controller
 
     public function update(Request $request, $id)
     {
-        // $this->authorize('courses.edit');
+        $this->authorize('courses.edit');
 
         $this->validate($request, [
             'nombre' => ['required', 'string', 'max:255'],
@@ -147,7 +147,7 @@ class CourseCompanyController extends Controller
 
     public function get_destroy($id)
     {
-        // $this->authorize('courses.destroy');
+        $this->authorize('courses.destroy');
 
         try {
             DB::beginTransaction();
@@ -169,7 +169,7 @@ class CourseCompanyController extends Controller
 
     public function destroy($id)
     {
-        // $this->authorize('courses.destroy');
+        $this->authorize('courses.destroy');
 
         try {
             DB::beginTransaction();
