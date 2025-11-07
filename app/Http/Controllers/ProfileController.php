@@ -69,13 +69,13 @@ class ProfileController extends Controller
 
                 $file = $request->avatar;
                 $extension = $file->getClientOriginalExtension();
-                $path = 'public/users';
+                $path = 'users';
                 // Crear el path si no existe
                 if (!File::exists($path)) {
-                    File::makeDirectory($path, 0755, true);
+                    Storage::disk('public')->makeDirectory($path);
                 }
                 $filename = 'avatar-user-id-' . $user->id . '-' . Carbon::now()->format('dmYHis') . '.' . $extension;
-                Storage::putFileAs($path . '/', $file, $filename);
+                Storage::disk('public')->putFileAs($path . '/', $file, $filename);
 
                 $user->avatar = str_replace('public', 'storage', $path) . '/' . $filename;
             }

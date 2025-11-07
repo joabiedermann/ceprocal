@@ -11,7 +11,9 @@
         <style>
             @font-face {
                 font-family: 'Maven Pro';
-                src: local('Maven Pro'), local('Maven-Pro'), url('<?php echo e(public_path('fonts/MavenProRegular.ttf')); ?>') format('truetype');
+                src: url('<?php echo e(public_path('fonts/MavenProRegular.ttf')); ?>') format('truetype');
+                font-weight: normal;
+                font-style: normal;
             }
             @page {
                 size: A4 landscape;
@@ -39,7 +41,7 @@
                 z-index: -1;
             }
             .content {
-                position: relative;
+                float:left;
                 margin-top: 22%;
                 margin-left: 10.6%;
                 width: 70%;
@@ -53,7 +55,6 @@
             .culminate {
                 font-family: 'Maven Pro', sans-serif;
                 font-size: 16px;
-                /* margin-top: -2.8%; */
             }
             .course {
                 font-family: 'Maven Pro', sans-serif;
@@ -71,12 +72,10 @@
                 margin-top: 2.6%;
             }
             .asociates-logos {
-                position: relative;
                 margin-top: -3.7%;
                 width: 75%;
                 height: 100px;
                 margin-left: 18%;
-                border-right: 1px solid black;
             }
             .asociate-image {
                 width: 135px;
@@ -104,7 +103,7 @@
             }
             .qr {
                 margin-top: 22%;
-                position: relative;
+                float:left;
                 width: 20%;
                 height: 32em;
             }
@@ -138,10 +137,6 @@
                 display: block;
                 word-wrap: break-word;
             }
-            /* .qr_verify_text span {
-                display: block;
-                margin-bottom: 5px;
-            } */
         </style>
     </head>
     <body>
@@ -151,10 +146,10 @@
         <div class="content">
             <p class="student_name"><?php echo e($student->name); ?></p>
             <p class="culminate">Por haber culminado el curso</p>
-            <p class="course"> <?php echo e($course->name); ?> (<?php echo e($course->hours); ?> HS)" </p>
+            <p class="course"> <?php echo e($course->name); ?> (<?php echo e($course->hours); ?> H) </p>
             <p class="activity">Actividad organizada por el Centro Paraguayo de Productividad y Calidad - CEPROCAL y la
                 <br>
-                Unión Industrial Paraguaya - UIP en fecha <?php echo e(Carbon\Carbon::parse($course->end_date)->format('d/m/Y')); ?>
+                Unión Industrial Paraguaya - UIP finalizado en fecha <?php echo e(Carbon\Carbon::parse($course->end_date)->format('d/m/Y')); ?>
 
             </p>
             <?php if($course->companies->count() > 0): ?>
@@ -193,9 +188,9 @@
                         <td class="line_signature" style="width: <?php echo e($width); ?>"><img style="height: <?php echo e($height); ?>" src="<?php echo e(asset('storage/certificates/templates/signature_2.png')); ?>" alt="signature_2"></td>
                     </tr>
                     <tr>
-                        <td style="font-size: <?php echo e($font_size); ?>;">ING. ENRIQUE DUARTE</td>
-                        <td class="blank"></td>
                         <td style="font-size: <?php echo e($font_size); ?>;">SR. OSVALDO ACHÓN</td>
+                        <td class="blank"></td>
+                        <td style="font-size: <?php echo e($font_size); ?>;">ING. ENRIQUE DUARTE</td>
                     </tr>
                     <tr>
                         <td class="position_signature">Presidente</td>
@@ -203,34 +198,25 @@
                         <td class="position_signature">Presidente</td>
                     </tr>
                     <tr>
-                        <td class="company_signature">UNIDÓN INDUSTRIAL PARAGUAYA</td>
-                        <td class="blank"></td>
                         <td class="company_signature">CEPROCAL</td>
+                        <td class="blank"></td>
+                        <td class="company_signature">UNIÓN INDUSTRIAL PARAGUAYA</td>
                     </tr>
                 </tbody>
             </table>
         </div>
         <div class="qr">
             <div class="qr_content">
-                <?php
-                    $link_content = route('show_course', $course->id);
-                ?>
-                <?php echo QrCode::size(130)->generate($link_content); ?>
-
+                <img src="data:image/png;base64,' . <?php echo e($qr_content); ?> . '" alt="qr_content">
             </div>
             <div class="qr_content_text">
                 <span>CONTENIDO PROGRAMÁTICO</span>
             </div>
             <div class="qr_verify">
-                <?php
-                    $link_verify = route('verificate_certificate', ['course' => $course->id, 'student' => $student->id, 'hash' => $student->hash_certificate]);
-                ?>
-                <?php echo QrCode::size(130)->generate($link_verify); ?>
-
+                <img src="data:image/png;base64,' . <?php echo e($qr_verify); ?> . '" alt="qr_verify">
             </div>
             <div class="qr_verify_text">
                 <span>VERIFICACIÓN DE AUTENTICIDAD</span>
-                
             </div>
         </div>
     </body>

@@ -1,4 +1,4 @@
-{{-- @can('courses.edit') --}}
+@can('courses.edit')
     @extends('layouts.simple.master')
     @section('css')
         <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/vendors/animate.css') }}">
@@ -164,4 +164,4 @@
         <script src="{{ asset('assets/js/select2/spanish.js') }}"></script>
         <script src="{{ asset('assets/js/cleave/cleave.min.js') }}"></script>
     @endsection
-{{-- @endcan --}}
+@endcan

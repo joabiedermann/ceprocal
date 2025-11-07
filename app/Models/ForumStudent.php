@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CourseStudent extends Model
+class ForumStudent extends Model
 {
     use HasFactory;
 
@@ -16,7 +16,7 @@ class CourseStudent extends Model
      */
 
     protected $fillable = [
-        'course_id',
+        'forum_id',
         'student_id',
         'hash_certificate',
         'path_certificate',
@@ -24,8 +24,8 @@ class CourseStudent extends Model
         'send_date',
     ];
 
-    public function Course(){
-        return $this->belongsTo(Course::class);
+    public function Forum(){
+        return $this->belongsTo(Forum::class);
     }
 
     public function Student(){

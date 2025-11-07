@@ -92,7 +92,7 @@
                                                             <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('students.edit')): ?>
                                                                 <li class="me-2">
                                                                     <a href="#" class="btn btn-xs btn-outline-primary edit-btn" data-bs-toggle="modal" data-bs-target="#editModal" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Editar" data-url="<?php echo e(route('students.edit', $student->id)); ?>">
-                                                                        <i class="fa fa-eye"></i>
+                                                                        <i class="fa fa-pencil"></i>
                                                                     </a>
                                                                 </li>
                                                             <?php endif; ?>

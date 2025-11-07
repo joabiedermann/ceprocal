@@ -13,6 +13,32 @@ Route::group(['middleware' => ['auth']], function () {
     // Dashboard
     Route::get('dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
+    //Certificates
+        //Courses
+            Route::get('certificates/import', [App\Http\Controllers\CertificateController::class, 'import'])->name('certificates.import');
+            Route::post('certificates/upload', [App\Http\Controllers\CertificateController::class, 'upload'])->name('certificates.upload');
+            Route::get('certificates/upload', [App\Http\Controllers\CertificateController::class, 'get_upload'])->name('certificates.get_upload');
+            Route::get('certificates/store', [App\Http\Controllers\CertificateController::class, 'store'])->name('certificates.store');
+            Route::get('certificates/shipments/', [App\Http\Controllers\CertificateController::class, 'shipments'])->name('certificates.shipments');
+            Route::get('certificates/show_shipment/{id}', [App\Http\Controllers\CertificateController::class, 'show_shipment'])->name('certificates.show_shipment');
+            Route::get('certificates/generate_pdf/{id}', [App\Http\Controllers\CertificateController::class, 'generate_pdf'])->name('certificates.generate_pdf');
+            //Send Email
+            Route::post('certificates/send/{id}', [App\Http\Controllers\CertificateController::class, 'send'])->name('certificates.send');
+            Route::get('certificates/send/{id}', [App\Http\Controllers\CertificateController::class, 'send'])->name('certificates.send');
+            Route::get('certificates/send_massive/{id}', [App\Http\Controllers\CertificateController::class, 'send_massive'])->name('certificates.send_massive');
+        //Forums
+            Route::get('forums_certificates/import', [App\Http\Controllers\ForumCertificateController::class, 'import'])->name('forums_certificates.import');
+            Route::post('forums_certificates/upload', [App\Http\Controllers\ForumCertificateController::class, 'upload'])->name('forums_certificates.upload');
+            Route::get('forums_certificates/upload', [App\Http\Controllers\ForumCertificateController::class, 'get_upload'])->name('forums_certificates.get_upload');
+            Route::get('forums_certificates/store', [App\Http\Controllers\ForumCertificateController::class, 'store'])->name('forums_certificates.store');
+            Route::get('forums_certificates/shipments/', [App\Http\Controllers\ForumCertificateController::class, 'shipments'])->name('forums_certificates.shipments');
+            Route::get('forums_certificates/show_shipment/{id}', [App\Http\Controllers\ForumCertificateController::class, 'show_shipment'])->name('forums_certificates.show_shipment');
+            Route::get('forums_certificates/generate_pdf/{id}', [App\Http\Controllers\ForumCertificateController::class, 'generate_pdf'])->name('forums_certificates.generate_pdf');
+            //Send Email
+            Route::post('forums_certificates/send/{id}', [App\Http\Controllers\ForumCertificateController::class, 'send'])->name('forums_certificates.send');
+            Route::get('forums_certificates/send/{id}', [App\Http\Controllers\ForumCertificateController::class, 'send'])->name('forums_certificates.send');
+            Route::get('forums_certificates/send_massive/{id}', [App\Http\Controllers\ForumCertificateController::class, 'send_massive'])->name('forums_certificates.send_massive');
+
     //Courses
     Route::get('courses', [App\Http\Controllers\CourseController::class, 'index'])->name('courses.index');
     Route::get('courses/show/{id}', [App\Http\Controllers\CourseController::class, 'show'])->name('courses.show');
@@ -31,18 +57,17 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('courses/get_destroy_asociate/{id}', [App\Http\Controllers\CourseCompanyController::class, 'get_destroy'])->name('courses.get_destroy_company');
     Route::delete('courses/destroy_asociate/{id}', [App\Http\Controllers\CourseCompanyController::class, 'destroy'])->name('courses.destroy_company');
 
-    //Certificates
-    Route::get('certificates/import', [App\Http\Controllers\CertificateController::class, 'import'])->name('certificates.import');
-    Route::post('certificates/upload', [App\Http\Controllers\CertificateController::class, 'upload'])->name('certificates.upload');
-    Route::get('certificates/upload', [App\Http\Controllers\CertificateController::class, 'get_upload'])->name('certificates.get_upload');
-    Route::get('certificates/store', [App\Http\Controllers\CertificateController::class, 'store'])->name('certificates.store');
-    Route::get('certificates/shipments/', [App\Http\Controllers\CertificateController::class, 'shipments'])->name('certificates.shipments');
-    Route::get('certificates/show_shipment/{id}', [App\Http\Controllers\CertificateController::class, 'show_shipment'])->name('certificates.show_shipment');
-    Route::get('certificates/generate_pdf/{id}', [App\Http\Controllers\CertificateController::class, 'generate_pdf'])->name('certificates.generate_pdf');
-        //Send Email
-        Route::post('certificates/send/{id}', [App\Http\Controllers\CertificateController::class, 'send'])->name('certificates.send');
-        Route::get('certificates/send/{id}', [App\Http\Controllers\CertificateController::class, 'send'])->name('certificates.send');
-        Route::get('certificates/send_massive/{id}', [App\Http\Controllers\CertificateController::class, 'send_massive'])->name('certificates.send_massive');
+    //Forums
+    Route::get('forums', [App\Http\Controllers\ForumController::class, 'index'])->name('forums.index');
+    Route::get('forums/show/{id}', [App\Http\Controllers\ForumController::class, 'show'])->name('forums.show');
+    Route::get('forums/create', [App\Http\Controllers\ForumController::class, 'create'])->name('forums.create');
+    Route::post('forums/store', [App\Http\Controllers\ForumController::class, 'store'])->name('forums.store');
+    Route::get('forums/edit/{id}', [App\Http\Controllers\ForumController::class, 'edit'])->name('forums.edit');
+    Route::post('forums/update/{id}', [App\Http\Controllers\ForumController::class, 'update'])->name('forums.update');
+    Route::get('forums/get_status/{id}', [App\Http\Controllers\ForumController::class, 'get_status'])->name('forums.get_status');
+    Route::post('forums/update_status/{id}', [App\Http\Controllers\ForumController::class, 'update_status'])->name('forums.update_status');
+    Route::get('forums/get_destroy/{id}', [App\Http\Controllers\ForumController::class, 'get_destroy'])->name('forums.get_destroy');
+    Route::delete('forums/destroy/{id}', [App\Http\Controllers\ForumController::class, 'destroy'])->name('forums.destroy');
     
     //Students
     Route::get('students', [App\Http\Controllers\StudentController::class, 'index'])->name('students.index');

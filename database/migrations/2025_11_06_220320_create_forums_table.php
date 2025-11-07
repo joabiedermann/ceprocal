@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('courses', function (Blueprint $table) {
+        Schema::create('forums', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('teacher_id')->constrained('teachers');
-            $table->date('start_date');
-            $table->date('end_date');
+            $table->date('date');
             $table->integer('hours');
             $table->boolean('certificates_generated')->default(false);
             $table->integer('status')->default(1);
@@ -29,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('courses');
+        Schema::dropIfExists('forums');
     }
 };

@@ -37,23 +37,43 @@
                         <span>Dashboard</span>
                     </a>
                 </li>
-                {{-- @canAny(['certificates.upload', 'certificates.sended']) --}}
+                @canAny(['certificates.upload', 'certificates.shipments', 'forums_certificates.upload', 'forums_certificates.shipments'])
                     <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a class="sidebar-link sidebar-title"
                             href="javascript:void(0)">
                             <svg class="stroke-icon">
                                 <use href="{{ asset('assets/svg/icon-sprite.svg#stroke-sample-page') }}"></use>
                             </svg><span class="lan-7-1">Certificados</span></a>
                         <ul class="sidebar-submenu">
-                            {{-- @can('certificates.upload') --}}
-                                <li><a class="menu-link" href="{{ route('certificates.import') }}">Importar Planilla</a></li>
-                            {{-- @endcan --}}
-                            {{-- @can('teachers.show') --}}
-                                <li><a class="menu-link" href="{{ route('certificates.shipments') }}">Enviados</a></li>
-                            {{-- @endcan --}}
+                            @canAny(['certificates.upload', 'certificates.shipments'])
+                                <li>
+                                    <a href="javascript:void(0)" class="submenu-title">Cursos</a>
+                                    <ul class="nav-sub-childmenu submenu-content">
+                                        @can('certificates.upload')
+                                            <li><a class="menu-link" href="{{ route('certificates.import') }}">Importar Planilla</a></li>
+                                        @endcan
+                                        @can('certificates.shipments')
+                                            <li><a class="menu-link" href="{{ route('certificates.shipments') }}">Enviados</a></li>
+                                        @endcan
+                                    </ul>
+                                </li>
+                            @endcanAny
+                            @canAny(['forums_certificates.upload', 'forums_certificates.shipments'])
+                                <li>
+                                    <a href="javascript:void(0)" class="submenu-title">Foros</a>
+                                    <ul class="nav-sub-childmenu submenu-content">
+                                        @can('forums_certificates.upload')
+                                            <li><a class="menu-link" href="{{ route('forums_certificates.import') }}">Importar Planilla</a></li>
+                                        @endcan
+                                        @can('forums_certificates.shipments')
+                                            <li><a class="menu-link" href="{{ route('forums_certificates.shipments') }}">Enviados</a></li>
+                                        @endcan
+                                    </ul>
+                                </li>
+                            @endcanAny
                         </ul>
                     </li>
-                {{-- @endcanAny --}}
-                {{-- @can('courses.show') --}}
+                @endcanAny
+                @can('courses.show')
                     <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a class="sidebar-link sidebar-title link-nav menu-link"
                             href="{{ route('courses.index') }}">
                             <svg class="stroke-icon">
@@ -65,23 +85,36 @@
                             <span>Cursos</span>
                         </a>
                     </li>
-                {{-- @endcan --}}
-                {{-- @canAny(['students.show', 'teacher.show']) --}}
+                @endcan
+                @can('forums.show')
+                    <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a class="sidebar-link sidebar-title link-nav menu-link"
+                            href="{{ route('forums.index') }}">
+                            <svg class="stroke-icon">
+                                <use href="{{ asset('assets/svg/icon-sprite.svg#stroke-chat') }}"></use>
+                            </svg>
+                            <svg class="fill-icon">
+                                <use href="{{ asset('assets/svg/icon-sprite.svg#fill-chat') }}"> </use>
+                            </svg>
+                            <span>Foros</span>
+                        </a>
+                    </li>
+                @endcan
+                @canAny(['students.show', 'teacher.show'])
                     <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a class="sidebar-link sidebar-title"
                             href="javascript:void(0)">
                             <svg class="stroke-icon">
                                 <use href="{{ asset('assets/svg/icon-sprite.svg#stroke-social') }}"></use>
                             </svg><span class="lan-7-1">Personas</span></a>
                         <ul class="sidebar-submenu">
-                            {{-- @can('students.show') --}}
+                            @can('students.show')
                                 <li><a class="menu-link" href="{{ route('students.index') }}">Estudiantes</a></li>
-                            {{-- @endcan --}}
-                            {{-- @can('teachers.show') --}}
+                            @endcan
+                            @can('teachers.show')
                                 <li><a class="menu-link" href="{{ route('teachers.index') }}">Docentes</a></li>
-                            {{-- @endcan --}}
+                            @endcan
                         </ul>
                     </li>
-                {{-- @endcanAny --}}
+                @endcanAny
                 @canany(['users.show', 'roles.show','permissions.show'])
                     <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a class="sidebar-link sidebar-title"
                             href="javascript:void(0)">

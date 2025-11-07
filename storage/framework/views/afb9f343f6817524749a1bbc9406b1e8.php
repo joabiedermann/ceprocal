@@ -37,23 +37,43 @@
                         <span>Dashboard</span>
                     </a>
                 </li>
-                
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['certificates.upload', 'certificates.shipments', 'forums_certificates.upload', 'forums_certificates.shipments'])): ?>
                     <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a class="sidebar-link sidebar-title"
                             href="javascript:void(0)">
                             <svg class="stroke-icon">
                                 <use href="<?php echo e(asset('assets/svg/icon-sprite.svg#stroke-sample-page')); ?>"></use>
                             </svg><span class="lan-7-1">Certificados</span></a>
                         <ul class="sidebar-submenu">
-                            
-                                <li><a class="menu-link" href="<?php echo e(route('certificates.import')); ?>">Importar Planilla</a></li>
-                            
-                            
-                                <li><a class="menu-link" href="<?php echo e(route('certificates.shipments')); ?>">Enviados</a></li>
-                            
+                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['certificates.upload', 'certificates.shipments'])): ?>
+                                <li>
+                                    <a href="javascript:void(0)" class="submenu-title">Cursos</a>
+                                    <ul class="nav-sub-childmenu submenu-content">
+                                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('certificates.upload')): ?>
+                                            <li><a class="menu-link" href="<?php echo e(route('certificates.import')); ?>">Importar Planilla</a></li>
+                                        <?php endif; ?>
+                                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('certificates.shipments')): ?>
+                                            <li><a class="menu-link" href="<?php echo e(route('certificates.shipments')); ?>">Enviados</a></li>
+                                        <?php endif; ?>
+                                    </ul>
+                                </li>
+                            <?php endif; ?>
+                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['forums_certificates.upload', 'forums_certificates.shipments'])): ?>
+                                <li>
+                                    <a href="javascript:void(0)" class="submenu-title">Foros</a>
+                                    <ul class="nav-sub-childmenu submenu-content">
+                                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('forums_certificates.upload')): ?>
+                                            <li><a class="menu-link" href="<?php echo e(route('forums_certificates.import')); ?>">Importar Planilla</a></li>
+                                        <?php endif; ?>
+                                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('forums_certificates.shipments')): ?>
+                                            <li><a class="menu-link" href="<?php echo e(route('forums_certificates.shipments')); ?>">Enviados</a></li>
+                                        <?php endif; ?>
+                                    </ul>
+                                </li>
+                            <?php endif; ?>
                         </ul>
                     </li>
-                
-                
+                <?php endif; ?>
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('courses.show')): ?>
                     <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a class="sidebar-link sidebar-title link-nav menu-link"
                             href="<?php echo e(route('courses.index')); ?>">
                             <svg class="stroke-icon">
@@ -65,23 +85,36 @@
                             <span>Cursos</span>
                         </a>
                     </li>
-                
-                
+                <?php endif; ?>
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('forums.show')): ?>
+                    <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a class="sidebar-link sidebar-title link-nav menu-link"
+                            href="<?php echo e(route('forums.index')); ?>">
+                            <svg class="stroke-icon">
+                                <use href="<?php echo e(asset('assets/svg/icon-sprite.svg#stroke-chat')); ?>"></use>
+                            </svg>
+                            <svg class="fill-icon">
+                                <use href="<?php echo e(asset('assets/svg/icon-sprite.svg#fill-chat')); ?>"> </use>
+                            </svg>
+                            <span>Foros</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['students.show', 'teacher.show'])): ?>
                     <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a class="sidebar-link sidebar-title"
                             href="javascript:void(0)">
                             <svg class="stroke-icon">
                                 <use href="<?php echo e(asset('assets/svg/icon-sprite.svg#stroke-social')); ?>"></use>
                             </svg><span class="lan-7-1">Personas</span></a>
                         <ul class="sidebar-submenu">
-                            
+                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('students.show')): ?>
                                 <li><a class="menu-link" href="<?php echo e(route('students.index')); ?>">Estudiantes</a></li>
-                            
-                            
+                            <?php endif; ?>
+                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('teachers.show')): ?>
                                 <li><a class="menu-link" href="<?php echo e(route('teachers.index')); ?>">Docentes</a></li>
-                            
+                            <?php endif; ?>
                         </ul>
                     </li>
-                
+                <?php endif; ?>
                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['users.show', 'roles.show','permissions.show'])): ?>
                     <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a class="sidebar-link sidebar-title"
                             href="javascript:void(0)">

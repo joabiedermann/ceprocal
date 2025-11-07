@@ -116,14 +116,14 @@ class CourseCompanyController extends Controller
 
                 $file = $request->logo;
                 $extension = $file->getClientOriginalExtension();
-                $path = 'public/courses/companies';
+                $path = 'courses/companies';
 
                 // Crear el path si no existe
                 if (!File::exists($path)) {
-                    File::makeDirectory($path, 0755, true);
+                    Storage::disk('public')->makeDirectory($path);
                 }
                 $filename = 'logo-' . Str::lower(str_replace(' ', '-', $company->course->name)) . '_' . Str::lower(str_replace(' ', '-', $company->company_name)) . '-' . Carbon::now()->format('dmYHis') . '.' . $extension;
-                Storage::putFileAs($path . '/', $file, $filename);
+                Storage::disk('public')->putFileAs($path . '/', $file, $filename);
 
                 $company->company_logo = str_replace('public', 'storage', $path) . '/' . $filename;
             }

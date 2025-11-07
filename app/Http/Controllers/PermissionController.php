@@ -55,10 +55,7 @@ class PermissionController extends Controller
             $roles_count = $permiso->roles->count();
 
             foreach ($permiso->roles as $key => $role) {
-                // Concatenamos el nombre del rol
                 $permiso->roles_names .= $role->name;
-
-                // Si no es el último rol, añadimos un guion
                 if ($key < ($roles_count - 1)) {
                     $permiso->roles_names .= ' - ';
                 }

@@ -16,21 +16,20 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
 use Barryvdh\DomPDF\Facade\Pdf;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
-class GeneratePdfJob implements ShouldQueue
+class GenerateForumPdfJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $course;
+    protected $forum;
     protected $students;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($course, $students)
+    public function __construct($forum, $students)
     {
-        $this->course = $course;
+        $this->forum = $forum;
         $this->students = $students;
     }
 
@@ -40,29 +39,19 @@ class GeneratePdfJob implements ShouldQueue
     public function handle(): void
     {
         try {
-            $folder_path = 'certificates';
-            $path = $folder_path . '/' . str_replace(' ', '-', Str::lower($this->course->name));
+            $folder_path = 'forums_certificates';
+            $path = $folder_path . '/' . $this->forum->id;
             // Crear el path si no existe
             if (!File::exists($path)) {
                 Storage::disk('public')->makeDirectory($path);
             }
 
-            $course = $this->course;
-            foreach ($this->students as $course_student) {
-                $student = $course_student->student;
+            $forum = $this->forum;
+            foreach ($this->students as $forum_student) {
+                $student = $forum_student->student;
                 $filename = $student->id . '_' . str_replace(' ', '', Str::title($student->name)) . '.pdf';
 
-
-                $link_content = route('show_course', $course->id);
-                $qr_content = QrCode::size(130)->generate($link_content);
-                $qr_content = base64_encode($qr_content);
-
-                $link_verify = route('verificate_certificate', ['course' => $course->id, 'student' => $student->id, 'hash' => Hash::make($course_student->hash_certificate)]);
-                $qr_verify = QrCode::size(130)->generate($link_verify);
-                $qr_verify = base64_encode($qr_verify);
-
-
-                $pdf = Pdf::loadView('certificates.pdf', compact('course', 'student', 'qr_content', 'qr_verify'));
+                $pdf = Pdf::loadView('forums_certificates.pdf', compact('forum', 'student'));
                 $pdf->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true]);
                 $pdf->setPaper('A4', 'landscape');
                 $pdf_content = $pdf->output();

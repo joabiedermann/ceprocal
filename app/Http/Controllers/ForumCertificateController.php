@@ -19,15 +19,12 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Http;
 
 use App\Models\Student;
-use App\Models\Teacher;
-use App\Models\Course;
-use App\Models\CourseModule;
-use App\Models\CourseCompany;
-use App\Models\CourseStudent;
+use App\Models\Forum;
+use App\Models\ForumStudent;
 
-use App\Jobs\GeneratePdfJob;
+use App\Jobs\GenerateForumPdfJob;
 
-class CertificateController extends Controller
+class ForumCertificateController extends Controller
 {
     public function __construct()
     {
@@ -41,14 +38,14 @@ class CertificateController extends Controller
 
     public function shipments()
     {
-        $this->authorize('certificates.shipments');
+        $this->authorize('forums_certificates.shipments');
 
         try {
             DB::beginTransaction();
 
-            $courses = Course::orderBy('created_at', 'desc')->get();
-            
-            return view('certificates.shipments')->with(compact('courses'));
+            $forums_certificates = Forum::orderBy('created_at', 'desc')->get();
+
+            return view('forums_certificates.shipments')->with(compact('forums_certificates'));
         } catch (\Exception $e) {
             Log::info($e->getMessage());
             return back()->with('error', 'La página no puede ser mostrada. Contacte con el administrador');
@@ -57,32 +54,31 @@ class CertificateController extends Controller
 
     public function show_shipment($id)
     {
-        $this->authorize('certificates.show_shipment');
+        $this->authorize('forums_certificates.show_shipment');
 
         try {
             DB::beginTransaction();
 
-            $course = Course::with('students')->findOrFail($id);
-            switch ($course->status) {
+            $forum = Forum::with('students')->findOrFail($id);
+            switch ($forum->status) {
                 case 0:
-                    $course->status_text = 'Inactivo';
+                    $forum->status_text = 'Inactivo';
                     break;
                 default:
-                    $course->status_text = 'Activo';
+                    $forum->status_text = 'Activo';
                     break;
             }
-            $course->start_date = Carbon::parse($course->start_date)->format('d/m/Y');
-            $course->end_date = Carbon::parse($course->end_date)->format('d/m/Y');
-            switch ($course->hours) {
+            $forum->date = Carbon::parse($forum->date)->format('d/m/Y');
+            switch ($forum->hours) {
                 case 1:
-                    $course->text_hours = 'hora';
+                    $forum->text_hours = 'hora';
                     break;
                 default:
-                    $course->text_hours = 'horas';
+                    $forum->text_hours = 'horas';
                     break;
             }
             
-            return view('certificates.show_shipment')->with(compact('course'));
+            return view('forums_certificates.show_shipment')->with(compact('forum'));
         } catch (\Exception $e) {
             Log::info($e->getMessage());
             return back()->with('error', 'No se puede obtener el registro . Contacte con el administrador');
@@ -91,14 +87,14 @@ class CertificateController extends Controller
 
     public function import()
     {
-        $this->authorize('certificates.upload');
+        $this->authorize('forums_certificates.upload');
 
         try {
             DB::beginTransaction();
 
             $errores = collect();
             
-            return view('certificates.import')->with(compact('errores'));
+            return view('forums_certificates.import')->with(compact('errores'));
         } catch (\Exception $e) {
             Log::info($e->getMessage());
             return back()->with('error', 'La página no puede ser cargada. Contacte con el administrador');
@@ -107,7 +103,7 @@ class CertificateController extends Controller
 
     public function upload(Request $request)
     {
-        $this->authorize('certificates.upload');
+        $this->authorize('forums_certificates.upload');
 
         $this->validate($request, [
             'planilla' => ['required',
@@ -134,9 +130,7 @@ class CertificateController extends Controller
             $path_file = 'storage/' . $path . '/' . $filename;
 
             $students = collect();
-            $course = new \stdClass();
-            $teacher = new \stdClass();
-            $modules = collect();
+            $forum = new \stdClass();
             $errores   = collect();
 
             $expected_headers = ['apellido_nombre',
@@ -151,7 +145,7 @@ class CertificateController extends Controller
 
             if (!empty($missing_headers)) {
                 $errores->push([
-                    'hoja' => 'Estudiantes',
+                    'hoja' => 'Participantes',
                     'fila' => '---',
                     'columna' => implode(', ', $missing_headers),
                     'error' => 'Falta la columna ' . implode(', ', $missing_headers) .  ' en el archivo Excel',
@@ -172,7 +166,7 @@ class CertificateController extends Controller
 
                 if ($validator->fails()) {
                     $errores->push([
-                        'hoja' => 'Estudiantes',
+                        'hoja' => 'Participantes',
                         'fila' => $index + 1, // +1 porque fila 1 son headers
                         'columna' => $validator->errors()->keys(),
                         'error' => $validator->errors()->all(),
@@ -188,14 +182,9 @@ class CertificateController extends Controller
                 }
             });
 
-            $expected_headers = ['curso',
-                'fecha_inicio',
-                'fecha_fin',
-                'cantidad_horas',
-                'docente',
-                'numero_documento',
-                'numero_telefono',
-                'correo_electronico'];
+            $expected_headers = ['foro',
+                'fecha',
+                'cantidad_horas'];
             $spreedsheet_headers = SimpleExcelReader::create($path_file)
                 ->fromSheet(2)
                 ->headersToSnakeCase()
@@ -204,89 +193,35 @@ class CertificateController extends Controller
 
             if (!empty($missing_headers)) {
                 $errores->push([
-                    'hoja' => 'Curso',
+                    'hoja' => 'Foro',
                     'fila' => '---',
                     'columna' => implode(', ', $missing_headers),
                     'error' => 'Falta la columna ' . implode(', ', $missing_headers) .  ' en el archivo Excel',
                 ]);
             }
 
-            $rows_course = SimpleExcelReader::create($path_file)
+            $rows_forum = SimpleExcelReader::create($path_file)
                 ->fromSheet(2)
                 ->headersToSnakeCase()
                 ->getRows();
-            $rows_course->each(function (array $row, $index) use ($course, $teacher, $errores) {
+            $rows_forum->each(function (array $row, $index) use ($forum, $errores) {
                 $validator = Validator::make($row, [
-                    'curso' => ['required', 'string', 'max:255', Rule::unique('courses', 'name')],
-                    'fecha_inicio' => ['required', 'date'],
-                    'fecha_fin' => ['required', 'date', 'after_or_equal:fecha_inicio'],
+                    'foro' => ['required', 'string', 'max:255', Rule::unique('forums', 'name')],
+                    'fecha' => ['required', 'date'],
                     'cantidad_horas' => ['required', 'numeric', 'min:1', 'digits_between:1,3'],
-                    'docente' => ['required', 'string', 'max:255', 'regex:/^.+,.+$/'],
-                    'numero_documento' => ['required', 'regex:/^([A-Fa-f]\d*|\d+)$/'],
-                    'numero_telefono' => ['nullable', 'numeric', 'digits_between:8,9'],
-                    'correo_electronico' => ['required', 'email'],
                 ]);
 
                 if ($validator->fails()) {
                     $errores->push([
-                        'hoja' => 'Curso',
+                        'hoja' => 'Foro',
                         'fila' => $index + 1, // +1 porque fila 1 son headers
                         'columna' => $validator->errors()->keys(),
                         'error' => $validator->errors()->all(),
                     ]);
                 } else {
-                    $course->name = $row['curso'] ?? null;
-                    $course->start_date = Carbon::parse($row['fecha_inicio'])->format('Y-m-d') ?? null;
-                    $course->end_date = Carbon::parse($row['fecha_fin'])->format('Y-m-d') ?? null;
-                    $course->hours = $row['cantidad_horas'] ?? null;
-                    
-                    $teacher->name = $row['docente'] ?? null;
-                    $teacher->document_number = $row['numero_documento'] ?? null;
-                    $teacher->phone_number = $row['numero_telefono'] ?? null;
-                    $teacher->email = $row['correo_electronico'] ?? null;
-                }
-            });
-
-            $expected_headers = ['numero',
-                'nombre'];
-            $spreedsheet_headers = SimpleExcelReader::create($path_file)
-                ->fromSheet(3)
-                ->headersToSnakeCase()
-                ->getHeaders();
-            $missing_headers = array_diff($expected_headers, $spreedsheet_headers);
-
-            if (!empty($missing_headers)) {
-                $errores->push([
-                    'hoja' => 'Modulos',
-                    'fila' => '---',
-                    'columna' => implode(', ', $missing_headers),
-                    'error' => 'Falta la columna ' . implode(', ', $missing_headers) .  ' en el archivo Excel',
-                ]);
-            }
-
-            $rows_modules = SimpleExcelReader::create($path_file)
-                ->fromSheet(3)
-                ->headersToSnakeCase()
-                ->getRows();
-            $rows_modules->each(function (array $row, $index) use ($modules, $errores) {
-                $validator = Validator::make($row, [
-                    'numero' => ['required', 'string', 'max:3', 'regex:/^[IVXLCDM]{1,3}$/i'],
-                    'nombre' => ['required', 'string'],
-                ]);
-
-                if ($validator->fails()) {
-                    $errores->push([
-                        'hoja' => 'Modulos',
-                        'fila' => $index + 1, // +1 porque fila 1 son headers
-                        'columna' => $validator->errors()->keys(),
-                        'error' => $validator->errors()->all(),
-                    ]);
-                } else {
-                    $data = [
-                        'number' => $row['numero'] ?? null,
-                        'description' => $row['nombre'] ?? null,
-                    ];
-                    $modules->push($data);
+                    $forum->name = $row['foro'] ?? null;
+                    $forum->date = Carbon::parse($row['fecha'])->format('Y-m-d') ?? null;
+                    $forum->hours = $row['cantidad_horas'] ?? null;
                 }
             });
 
@@ -298,7 +233,7 @@ class CertificateController extends Controller
 
             Storage::disk('public')->delete(str_replace('storage/', '', $path_file));
 
-            return view ('certificates.temporal_import')->with(compact('students' , 'teacher', 'course', 'modules'));
+            return view ('forums_certificates.temporal_import')->with(compact('students' , 'forum'));
         } catch (\Exception $e) {
             Log::info($e->getMessage());
             return back()->with('error', 'El archivo no pudo ser importado. Contacte con el administrador');
@@ -307,11 +242,11 @@ class CertificateController extends Controller
 
     public function get_upload(Request $request)
     {
-        $this->authorize('certificates.upload');
+        $this->authorize('forums_certificates.upload');
 
         try {
-            $course_id = $this->store($request);
-            return redirect()->route('certificates.shipments');
+            $forum_id = $this->store($request);
+            return redirect()->route('forums_certificates.shipments');
         } catch (\Exception $e) {
             Log::info($e->getMessage());
             return back()->with('error', 'El archivo no pudo ser importado. Contacte con el administrador');
@@ -320,86 +255,58 @@ class CertificateController extends Controller
 
     public function store(Request $request)
     {
-        $this->authorize('certificates.upload');
+        $this->authorize('forums_certificates.upload');
 
         $this->validate($request, [
-            'nombre' => ['required', 'string', 'max:255', Rule::unique('courses', 'name')],
-            'fecha_inicio' => ['required', 'date'],
-            'fecha_fin' => ['required', 'date', 'after_or_equal:fecha_inicio'],
+            'nombre' => ['required', 'string', 'max:255', Rule::unique('forums', 'name')],
+            'fecha' => ['required', 'date'],
             'horas' => ['required', 'numeric', 'min:1', 'digits_between:1,3'],
-            'docente' => ['required', 'string', 'max:255'],
-            'documento_docente' => ['required', 'regex:/^([A-Fa-f]\d*|\d+)$/'],
-            'telefono_docente' => ['required', 'numeric', 'digits_between:8,9'],
-            'correo_docente' => ['required', 'email'],
-            'estudiantes' => ['required', 'array'],
-            'estudiantes.*.nombre' => ['required', 'string', 'max:255'],
-            'estudiantes.*.documento' => ['required', 'regex:/^([A-Fa-f]\d*|\d+)$/'],
-            'estudiantes.*.telefono' => ['required', 'numeric', 'digits_between:8,9'],
-            'estudiantes.*.correo' => ['required', 'email'],
-            'modulos.*.modulo' => ['required', 'string', 'max:3', 'regex:/^[IVXLCDM]{1,3}$/i'],
-            'modulos.*.descripcion' => ['required', 'string']
+            'participantes' => ['required', 'array'],
+            'participantes.*.nombre' => ['required', 'string', 'max:255'],
+            'participantes.*.documento' => ['required', 'regex:/^([A-Fa-f]\d*|\d+)$/'],
+            'participantes.*.telefono' => ['required', 'numeric', 'digits_between:8,9'],
+            'participantes.*.correo' => ['required', 'email'],
         ]);
 
         try {
             DB::beginTransaction();
 
-            if (Teacher::where('document_number', Str::upper($request->documento_docente))->exists()) {
-                $teacher = Teacher::where('document_number', Str::upper($request->documento_docente))->first();
-            } else {
-                $teacher = new Teacher();
-                $teacher->name = $request->docente;
-                $teacher->document_number = Str::upper($request->documento_docente);
-                $teacher->phone_number = 0 . $request->telefono_docente;
-                $teacher->email = Str::lower($request->correo_docente);
-                $teacher->save();
-            }
+            $forum = new Forum();
+            $forum->name = $request->nombre;
+            $forum->date = $request->fecha;
+            $forum->hours = $request->horas;
+            $forum->save();
 
-            $course = new Course();
-            $course->name = $request->nombre;
-            $course->teacher_id = $teacher->id;
-            $course->start_date = $request->fecha_inicio;
-            $course->end_date = $request->fecha_fin;
-            $course->hours = $request->horas;
-            $course->save();
-
-            foreach ($request->modulos as $modulo) {
-                $module = new CourseModule();
-                $module->course_id = $course->id;
-                $module->module = Str::upper($modulo['modulo']);
-                $module->description = $modulo['descripcion'];
-                $module->save();
-            }
-
-            foreach ($request->estudiantes as $estudiante) {
-                if (Student::where('document_number', Str::upper($estudiante['documento']))->exists()) {
-                    $student = Student::where('document_number', Str::upper($estudiante['documento']))->first();
+            foreach ($request->participantes as $participante) {
+                if (Student::where('document_number', Str::upper($participante['documento']))->exists()) {
+                    $student = Student::where('document_number', Str::upper($participante['documento']))->first();
                 } else {
                     $student = new Student();
-                    $student->name = $estudiante['nombre'];
-                    $student->document_number = Str::upper($estudiante['documento']);
-                    $student->phone_number = 0 . $estudiante['telefono'];
-                    $student->email = Str::lower($estudiante['correo']);
+                    $student->name = $participante['nombre'];
+                    $student->document_number = Str::upper($participante['documento']);
+                    $student->phone_number = 0 . $participante['telefono'];
+                    $student->email = Str::lower($participante['correo']);
                     $student->save();
                 }
 
                 $filename = $student->id . '_' . str_replace(' ', '', Str::title($student->name)) . '.pdf';
 
-                $course_student = new CourseStudent();
-                $course_student->course_id = $course->id;
-                $course_student->student_id = $student->id;
-                $course_student->hash_certificate = Str::random(20);                
-                $course_student->path_certificate = 'storage/certificates/' . str_replace(' ', '-', Str::lower($course->name)) . '/' . $filename;
-                $course_student->save();
+                $forum_student = new ForumStudent();
+                $forum_student->forum_id = $forum->id;
+                $forum_student->student_id = $student->id;
+                $forum_student->hash_certificate = Str::random(20);                
+                $forum_student->path_certificate = 'storage/forums_certificates/' . $forum->id . '/' . $filename;
+                $forum_student->save();
             }
 
-            $course = Course::where('id', $course->id)->first();
-            if (!$course) {
+            $forum = Forum::where('id', $forum->id)->first();
+            if (!$forum) {
                 return back()->with('error', 'Los datos importados no pudieron ser guardados. Contacte con el administrador');
             }
 
             DB::commit();
 
-            return $course->id;
+            return $forum->id;
         } catch (\Exception $e) {
             DB::rollback();
             Log::info($e->getMessage());
@@ -412,19 +319,19 @@ class CertificateController extends Controller
         try {
             DB::beginTransaction();
 
-            $course = Course::find($id);
-            if (empty($course)) {
-                Log::error('No se encontró el curso con ID: ' . $id);
+            $forum = Forum::find($id);
+            if (empty($forum)) {
+                Log::error('No se encontró el foro con ID: ' . $id);
                 return response()->json([
-                    'message' => 'No se encontró el curso. Contacte con el administrador',
+                    'message' => 'No se encontró el foro. Contacte con el administrador',
                     'type' => 'error',
                 ]);
             }
 
-            GeneratePdfJob::dispatch($course, $course->students);
+            GenerateForumPdfJob::dispatch($forum, $forum->students);
 
-            $course->certificates_generated = 1;
-            $course->save();
+            $forum->certificates_generated = 1;
+            $forum->save();
             
             DB::commit();
 
@@ -443,17 +350,17 @@ class CertificateController extends Controller
 
     public function connect(): ?string
     {
-        $this->authorize('certificates.send');
+        $this->authorize('forums_certificates.send');
 
         try {
             DB::beginTransaction();
 
-            $client_id = env('MSGRAPH_CLIENT_ID');
-            $client_secret = env('MSGRAPH_SECRET_ID');
-            $tenant_id = env('MSGRAPH_TENANT_ID');
+            $client_id = 'e24e5e21-1485-4207-9868-5e702508e9e4'; // env('MSGRAPH_CLIENT_ID');
+            $client_secret = 'Thh8Q~emRaPNY.G7VT4IfLyWAGHTqs1Pniht0aoL'; // env('MSGRAPH_SECRET_ID');
+            $tenant_id = '5f16dc7a-be0a-4bd4-a259-54d1451ff53a'; // env('MSGRAPH_TENANT_ID');
 
             $url = 'https://login.microsoftonline.com/' . $tenant_id . '/oauth2/v2.0/token';
-            $scope = env('MSGRAPH_SCOPE');
+            $scope = 'https://graph.microsoft.com/.default'; // env('MSGRAPH_SCOPE');
 
             if (empty($client_id) || empty($client_secret) || empty($tenant_id) || empty($scope)) {
                 Log::error('Faltan las credenciales de Microsoft Graph en el archivo .env', [
@@ -492,60 +399,61 @@ class CertificateController extends Controller
 
     public function send($id)
     {
-        $this->authorize('certificates.send');
+        $this->authorize('forums_certificates.send');
 
         try {
             DB::beginTransaction();
 
-            $course_student = CourseStudent::find($id);
+            $forum_student = ForumStudent::find($id);
 
-            if (empty($course_student)) {
-                Log::error('No se encontró la relación de curso-estudiante con ID: ' . $id);
+            if (empty($forum_student)) {
+                Log::error('No se encontró la relación de foro-participante con ID: ' . $id);
                 return response()->json([
-                    'message' => 'No se encontró la relación de curso-estudiante. Contacte con el administrador',
+                    'message' => 'No se encontró la relación de foro-participante. Contacte con el administrador',
                     'type' => 'error',
                 ]);
             }
 
-            $course = Course::find($course_student->course_id);
-            if (empty($course)) {
-                Log::error('No se encontró el curso con ID: ' . $course_student->course_id);
+            $forum = Forum::find($forum_student->forum_id);
+            if (empty($forum)) {
+                Log::error('No se encontró el foro con ID: ' . $forum_student->forum_id);
                 return response()->json([
-                    'message' => 'No se encontró el curso. Contacte con el administrador',
+                    'message' => 'No se encontró el foro. Contacte con el administrador',
                     'type' => 'error',
                 ]);
             }
 
-            $course_student->send_status = 'Enviado';
-            $course_student->send_date = Carbon::now();
-            $course_student->save();
+            $forum_student->send_status = 'Enviado';
+            $forum_student->send_date = Carbon::now();
+            $forum_student->save();
 
             DB::commit();
 
             $ms_token = $this->ms_token ?? $this->connect();
             if (!$ms_token) {
-                Log::error('No se pudo obtener un token válido de Microsoft Graph para enviar el certificado del curso-estudiante con ID: ' . $course_student->id);
+                Log::error('No se pudo obtener un token válido de Microsoft Graph para enviar el certificado del foro-participante con ID: ' . $forum_student->id);
                 return response()->json([
                     'message' => 'No se pudo obtener un token válido de Microsoft Graph. Contacte con el administrador',
                     'type' => 'error',
                 ]);
             }
 
-            $from = env('MSGRAPH_SENDER');
+            $from = 'certificados@ceprocal.org.py'; // env('MSGRAPH_SENDER');
+
             if (empty($from)) {
                 Log::error('No se ha configurado el remitente en las variables de entorno.');
                 return;
             }
 
             $recipient = [
-                ['emailAddress' => ['address' => $course_student->student->email]],
+                ['emailAddress' => ['address' => $forum_student->student->email]],
             ];
 
-            $file = Storage::disk('public')->get(str_replace('storage/', '', $course_student->path_certificate));
+            $file = Storage::disk('public')->get(str_replace('storage/', '', $forum_student->path_certificate));
 
             if (!$file) {
                 Log::error('No se pudo leer el archivo adjunto desde el almacenamiento.', [
-                    'path' => $course_student->path_certificate
+                    'path' => $forum_student->path_certificate
                 ]);
                 return;
             }
@@ -560,15 +468,15 @@ class CertificateController extends Controller
                 ]
             ];
 
-            $subject = 'Certificado de Finalización del Curso ' . $course_student->course->name;
+            $subject = 'Certificado de Finalización del Foro ' . $forum_student->forum->name;
 
-            $body_content = "<p>Estimado/a <b>{$course_student->student->name}</b>:</p>
-                                <p>Agradecemos sinceramente la confianza depositada en CEPROCAL al participar del <b>{$course_student->course->name}</b> con un total de <b>{$course_student->course->hours}</b> horas.
+            $body_content = "<p>Estimado/a <b>{$forum_student->student->name}</b>:</p>
+                                <p>Agradecemos sinceramente la confianza depositada en CEPROCAL al participar del <b>{$forum_student->forum->name}</b> con un total de <b>{$forum_student->forum->hours}</b> horas.
                                 <br>
                                 Adjunto encontrará su certificado de participación, emitido en reconocimiento al cumplimiento del programa.</p>
                                 <p>Nos alegra haber sido parte de esta etapa de su formación y queremos seguir acompañando su crecimiento profesional.
                                 <br>
-                                Lo/a invitamos a seguir nuestras novedades, próximos cursos y actividades en nuestras redes sociales y página web:</p>
+                                Lo/a invitamos a seguir nuestras novedades, próximos foros y actividades en nuestras redes sociales y página web:</p>
                                 <p>🌐 <a href='https://www.ceprocal.org.py' target='_blank'>www.ceprocal.org.py</a>
                                 <br>
                                 📱 Facebook: @ceprocal | Instagram: @ceprocal</p>
@@ -593,7 +501,7 @@ class CertificateController extends Controller
                 ->post('https://graph.microsoft.com/v1.0/users/' . $from . '/sendMail', $body);
 
             if ($response->successful()) {
-                Log::info('Correo enviado correctamente a: ' . $course_student->student->email);
+                Log::info('Correo enviado correctamente a: ' . $forum_student->student->email);
             } else {
                 Log::error('Error al enviar correo', [
                     'status' => $response->status(),
@@ -610,7 +518,7 @@ class CertificateController extends Controller
             DB::rollBack();
             Log::error('Excepción al enviar certificado', [
                 'message' => $e->getMessage(),
-                'course_student_id' => $id,
+                'forum_student_id' => $id,
             ]);
             return response()->json([
                     'message' => 'El correo no se pudo enviar. Contacte con el administrador',
@@ -621,14 +529,14 @@ class CertificateController extends Controller
 
     public function send_massive($id)
     {
-        $this->authorize('certificates.send');
+        $this->authorize('forums_certificates.send');
 
         try {
             DB::beginTransaction();
 
-            $course = Course::find($id);
+            $forum = Forum::find($id);
 
-            $from = env('MSGRAPH_SENDER');
+            $from = 'certificados@ceprocal.org.py'; // env('MSGRAPH_SENDER');
             if (empty($from)) {
                 Log::error('No se ha configurado el remitente en las variables de entorno.');
                 return;
@@ -636,23 +544,23 @@ class CertificateController extends Controller
 
             $ms_token = $this->ms_token ?? $this->connect();
             if (!$ms_token) {
-                Log::error('No se pudo obtener un token válido de Microsoft Graph para enviar los certificados del curso con ID: ' . $course->id);
+                Log::error('No se pudo obtener un token válido de Microsoft Graph para enviar los certificados del foro con ID: ' . $forum->id);
                 return response()->json([
                     'message' => 'No se pudo obtener un token válido de Microsoft Graph. Contacte con el administrador',
                     'type' => 'error',
                 ]);
             }
 
-            foreach ($course->students as $course_student) {
+            foreach ($forum->students as $forum_student) {
                 $recipient = [
-                    ['emailAddress' => ['address' => $course_student->student->email]],
+                    ['emailAddress' => ['address' => $forum_student->student->email]],
                 ];
 
-                $file = Storage::disk('public')->get(str_replace('storage/', '', $course_student->path_certificate));
+                $file = Storage::disk('public')->get(str_replace('storage/', '', $forum_student->path_certificate));
 
                 if (!$file) {
                     Log::error('No se pudo leer el archivo adjunto desde el almacenamiento.', [
-                        'path' => $course_student->path_certificate
+                        'path' => $forum_student->path_certificate
                     ]);
                     return;
                 }
@@ -667,15 +575,15 @@ class CertificateController extends Controller
                     ]
                 ];
 
-                $subject = 'Certificado de Finalización del Curso ' . $course_student->course->name;
+                $subject = 'Certificado de Finalización del Curso ' . $forum_student->forum->name;
 
-                $body_content = "<p>Estimado/a <b>{$course_student->student->name}</b>:</p>
-                                <p>Agradecemos sinceramente la confianza depositada en CEPROCAL al participar del <b>{$course_student->course->name}</b> con un total de <b>{$course_student->course->hours}</b> horas.
+                $body_content = "<p>Estimado/a <b>{$forum_student->student->name}</b>:</p>
+                                <p>Agradecemos sinceramente la confianza depositada en CEPROCAL al participar del <b>{$forum_student->forum->name}</b> con un total de <b>{$forum_student->forum->hours}</b> horas.
                                 <br>
                                 Adjunto encontrará su certificado de participación, emitido en reconocimiento al cumplimiento del programa.</p>
                                 <p>Nos alegra haber sido parte de esta etapa de su formación y queremos seguir acompañando su crecimiento profesional.
                                 <br>
-                                Lo/a invitamos a seguir nuestras novedades, próximos cursos y actividades en nuestras redes sociales y página web:</p>
+                                Lo/a invitamos a seguir nuestras novedades, próximos foros y actividades en nuestras redes sociales y página web:</p>
                                 <p>🌐 <a href='https://www.ceprocal.org.py' target='_blank'>www.ceprocal.org.py</a>
                                 <br>
                                 📱 Facebook: @ceprocal | Instagram: @ceprocal</p>
@@ -700,7 +608,7 @@ class CertificateController extends Controller
                     ->post('https://graph.microsoft.com/v1.0/users/' . $from . '/sendMail', $body);
 
                 if ($response->successful()) {
-                    Log::info('Correo enviado correctamente a: ' . $course_student->student->email);
+                    Log::info('Correo enviado correctamente a: ' . $forum_student->student->email);
                 } else {
                     Log::error('Error al enviar correo', [
                         'status' => $response->status(),
@@ -708,9 +616,9 @@ class CertificateController extends Controller
                     ]);
                 }
 
-                $course_student->send_status = 'Enviado';
-                $course_student->send_date = Carbon::now();
-                $course_student->save();
+                $forum_student->send_status = 'Enviado';
+                $forum_student->send_date = Carbon::now();
+                $forum_student->save();
             }
 
             DB::commit();
@@ -724,7 +632,7 @@ class CertificateController extends Controller
             DB::rollBack();
             Log::error('Excepción al enviar certificados', [
                 'message' => $e->getMessage(),
-                'course' => $id,
+                'forum' => $id,
             ]);
             return response()->json([
                     'message' => 'El correo no se pudo enviar. Contacte con el administrador',
